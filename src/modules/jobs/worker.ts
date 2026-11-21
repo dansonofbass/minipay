@@ -9,11 +9,7 @@ import { DomainError } from '@/lib/http';
 export async function wake() {
   if (!process.env.VERCEL) return;
   try {
-    await send(
-      'crediflow-jobs',
-      { tick: Date.now() },
-      { idempotencyKey: `wake:${Math.floor(Date.now() / 1000)}` },
-    );
+    await send('crediflow-jobs', { tick: Date.now() }, { idempotencyKey: `wake:${randomUUID()}` });
   } catch (error) {
     console.error(
       JSON.stringify({
