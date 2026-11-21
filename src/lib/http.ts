@@ -74,7 +74,9 @@ export function serviceAuth(request: Request) {
   );
 }
 export function appUrl() {
-  return process.env.APP_URL ?? 'http://localhost:3000';
+  if (process.env.APP_URL) return process.env.APP_URL;
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  return host ? `https://${host}` : 'http://localhost:3000';
 }
 export function sameOrigin(request: Request) {
   invariant(
