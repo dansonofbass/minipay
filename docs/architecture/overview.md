@@ -21,4 +21,4 @@ Identity uses Better Auth and database-backed sessions and rate limits. Commerce
 
 PostgreSQL advisory transaction locks serialize a purchase, account or operation. No remote HTTP request is issued while a financial database transaction is open. HTTP status inquiries recover ambiguous cross-domain outcomes. The local worker polls an authenticated HTTP endpoint; production uses managed Queues plus a daily cron recovery entry point. Local filesystem data is never a production database.
 
-The hosted deployment and managed delivery infrastructure still require live verification. The milestone includes a persistent server-side cart and an activity chart from stored payments. Refunds and production email delivery remain pending.
+The hosted deployment and managed delivery infrastructure were verified with actual HTTP and browser scenarios. The milestone includes a persistent server-side cart and an activity chart from stored payments. Refunds and production email delivery remain pending.

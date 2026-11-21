@@ -2,15 +2,15 @@
 
 A fictional buy now, pay later platform and persistent Mock Bank built with Next.js, TypeScript, PostgreSQL, Prisma, Better Auth, and Vercel Queues.
 
-**Status: runnable and tested locally. GitHub source and CI are verified; managed PostgreSQL and live Vercel operation are not yet verified.** See [implementation status](IMPLEMENTATION_STATUS.md) for evidence and remaining work.
+**Status: core application deployed and verified on Vercel with managed PostgreSQL. Remaining operational gaps are documented.** See [implementation status](IMPLEMENTATION_STATUS.md) for evidence and remaining work.
 
-![Customer portal](docs/screenshots/customer.png)
+![Customer portal](docs/screenshots/hosted-customer.png)
 
 Repository: https://github.com/dansonofbass/minipay
 
 ## Explore in the browser
 
-The local application is available at http://localhost:3000 while its application, database, and worker processes are running. Open `/app`, `/admin`, or `/bank`; authentication routes each account to its authorized portal. Private local demo credentials are in the ignored `.local/demo-access.txt` file, which is never published.
+Open https://crediflow-bnpl-simulator.vercel.app. Use `/app`, `/admin`, or `/bank`; authentication routes each account to its authorized portal. Private hosted demo access is supplied outside the repository in `.local/production-demo-access.txt`. Local development uses separate credentials.
 
 Read the [browser-only walkthrough](docs/DEMO-WALKTHROUGH.md). All balances, identities, products, and transactions are fictional. No payment provider, real bank, or real financial data is involved.
 
@@ -29,7 +29,7 @@ Read the [browser-only walkthrough](docs/DEMO-WALKTHROUGH.md). All balances, ide
 
 ## Verification
 
-The latest recorded checks are 19 passing unit tests, 18 passing PostgreSQL/HTTP integration tests, and 3 passing Playwright Chrome tests. Production build, TypeScript, ESLint, and production dependency audit passed. The initial main-branch [GitHub CI run passed](https://github.com/dansonofbass/minipay/actions/runs/44844067770). [Testing details](docs/TESTING.md) distinguish local verification from unverified hosted behavior.
+The latest recorded checks are 20 passing unit tests, 18 passing PostgreSQL/HTTP integration tests, and 3 passing Playwright Chrome tests. Production build, TypeScript, ESLint, and production dependency audit passed. The runtime-change [GitHub CI run passed](https://github.com/dansonofbass/minipay/actions/runs/44847350184). Additional hosted checks proved automatic queues, signed webhook replay, response-loss recovery and 100 concurrent requests with one economic effect. [Testing details](docs/TESTING.md) define evidence scopes and limits.
 
 ## Architecture and operations
 

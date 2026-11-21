@@ -1,32 +1,47 @@
 # Implementation report
 
-Checkpoint: 2026-11-21. The immediate runnable-application milestone is implemented and locally tested; the complete original production acceptance target is not yet achieved.
+Checkpoint: 2026-11-21. The core BNPL and Mock Bank milestone is implemented, published, deployed and tested end to end. This remains a fictional educational simulator with the broader limits below.
 
-## Verified locally
+## Delivered
 
-Authentication and registration, database sessions, customer/admin/bank role isolation, customer ownership, origin checks, server-authoritative prices, product catalog, cart checkout, manual approval, bank credit checks, stock reservation, persistent bank accounts, audited adjustments, credit limits, frozen accounts, atomic reservations/debits, first-payment financing conversion, installment repayments, canonical idempotency, real bank HTTP boundaries, signed webhook intake/delivery, duplicate handling, unknown-outcome recovery, leased jobs, reconciliation, balanced immutable journals and three rendered portals.
+- Source: https://github.com/dansonofbass/minipay
+- Live: https://crediflow-bnpl-simulator.vercel.app
+- Customer `/app`, BNPL administrator `/admin`, Mock Bank `/bank`.
+- Persistent managed Neon PostgreSQL, isolated runtime roles and five applied migrations.
+- Authentication, catalog/cart, manual review, credit authorization, installments, payments and bank administration.
+- Transactional financial correctness, immutable balanced journals, durable jobs, real signed webhooks and reconciliation.
+- Fault simulator, operational inspectors, real metrics, API documentation, diagrams, CI and browser walkthrough.
+- Private hosted demo access: ignored `.local/production-demo-access.txt`; no password is published.
 
-Evidence: 19 unit tests, 18 PostgreSQL/HTTP integration tests, 3 Playwright Chrome tests, a passing production build, passing lint/type checks, and zero reported production dependency advisories after patched overrides. The integration test creates 100 concurrent first-payment requests and proves one bank debit and one BNPL payment journal. Browser screenshots are included. PostgreSQL-backed cart persistence, stored-payment activity charts, OpenAPI core contracts, and the Edward/Bob/Charlie/Diana demonstration workflow seed are also implemented and locally verified.
+## Evidence
 
-## Not verified or incomplete
+The runtime-change [CI run passed](https://github.com/dansonofbass/minipay/actions/runs/44847350184): 20 unit tests, 18 real PostgreSQL/HTTP integration tests, 3 Playwright Chrome tests, lint, type checking, build, migrations, schema drift, seed, audit and credential-pattern checks.
 
-| Requirement                                        | Status and limit                                                                                                                             |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Managed PostgreSQL                                 | NOT VERIFIED; Neon connection pending                                                                                                        |
-| Vercel deployed application                        | NOT VERIFIED; existing project preserved, no live URL claimed                                                                                |
-| Deployed Queues, heartbeat, cron, webhooks         | NOT VERIFIED; source configuration and local persistence tests exist                                                                         |
-| Public email verification and password recovery    | NOT VERIFIED; email service not configured                                                                                                   |
-| Automated production migrations                    | NOT VERIFIED; migration files and CI validation exist; production provisioning gate required                                                 |
-| Protected demo reset                               | NOT VERIFIED; intentionally no destructive reset action implemented                                                                          |
-| Refunds and payment reversals                      | NOT VERIFIED; no claimed economic reversal workflow                                                                                          |
-| Full crash matrix / operating-system kill          | NOT VERIFIED; tested durable lease recovery and deterministic checkpoint interruption                                                        |
-| Full stock/debit race matrix and load capacity     | NOT VERIFIED; tested same-installment, credit reservation, bank debit and last-unit stock races; production load capacity is not established |
-| External error monitoring and backup restore tests | NOT VERIFIED                                                                                                                                 |
+Live testing verified registration, all three browser logins with zero JS errors, cart reload, automatic managed jobs, credit reservation, first installment activation, signed HTTP webhooks, five replays without another posting, committed-response-loss recovery by the original ID, and matching repeated reconciliation.
 
-## External access
+The hosted concurrency run sent 100 simultaneous Pay requests for one fictional installment: 100 successes, one intent, one bank debit journal and one BNPL collection journal. The test account ended at 40,000 AMD cash and 60,000 AMD principal. Seeded Alice's balances were preserved.
 
-The user published https://github.com/dansonofbass/minipay through GitHub Desktop. Repository access and Git push credentials were verified under the normal Windows account. Future commits use the author name `dansonofbass`; existing history is preserved. The initial main-branch CI passed: https://github.com/dansonofbass/minipay/actions/runs/44844067770.
+The first live recovery attempt found a genuine notification race: time-bucketed wakeup keys could suppress a later committed job in the same second. The key was corrected, a regression test added, and the original pending payment recovered across deployment. A fresh complete hosted run and 100-request test then passed. This initial failure was not reported as a success.
 
-Vercel project identity is preserved and Node.js is configured to the locally tested 24.x runtime. No managed database integration or project environment variables are configured yet. Neon connection/provisioning is still pending.
+See `docs/verification/hosted-results.json`, `docs/TESTING.md`, `docs/ACCEPTANCE.md` and hosted screenshots for exact evidence scopes.
 
-No secrets are included in tracked source. Private local access is in ignored `.local/demo-access.txt`. The local application currently runs at http://localhost:3000 with real PostgreSQL. Source and documentation are prepared for further hosted verification; they are not evidence of a completed deployment.
+## Remaining limits
+
+| Requirement                              | Status / limit                                                                         |
+| ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| Future automated production migrations   | NOT VERIFIED; current migrations applied, future release gates need scoped credentials |
+| Email verification/recovery and MFA      | NOT VERIFIED; no delivery provider or MFA setup                                        |
+| Global protected demo reset              | NOT VERIFIED; no destructive reset endpoint                                            |
+| Refunds/reversals                        | NOT VERIFIED; require compensating accounting workflows                                |
+| OS process-kill crash matrix             | NOT VERIFIED; lease interruptions, deployment recovery and unknown outcomes tested     |
+| Sustained production capacity            | NOT VERIFIED; 100 duplicate requests are not a broad capacity benchmark                |
+| External monitoring and restore exercise | NOT VERIFIED                                                                           |
+| Next daily cron calendar firing          | NOT VERIFIED; configured, managed queue processing proven                              |
+
+Bank fault probabilities are deliberate. Choose Healthy and save before the successful demonstration. No real banks, real money, credit bureaus or personal financial data are involved.
+
+## Ownership and security
+
+The private user-published minipay repository and its existing history were preserved. Subsequent commits use `dansonofbass`. The original Vercel project was reused. Neon uses the selected free plan; Vercel remains on Hobby, with no paid upgrade enabled. Quotas still apply.
+
+Runtime contains only the explicitly authorized six application Secrets. Owner provisioning credentials and demo passwords remain outside runtime and version control. Temporary QA automation access was revoked after tests. The deployment runbook explains recovery and remaining operations work.

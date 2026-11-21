@@ -1,10 +1,10 @@
 # CrediFlow browser-only demonstration
 
-Use http://localhost:3000 for the running local application. A production address will be added only after deployment and verification. The engineer starts the required local processes; no terminal, Docker or Linux setup is required from the demo user.
+Use https://crediflow-bnpl-simulator.vercel.app. Managed PostgreSQL and managed jobs power the demonstration; no terminal, Docker, Linux setup or local process is required.
 
 ## Sign in
 
-Open `/login`. Use your private local demo password from `.local/demo-access.txt` with `alice@crediflow.demo` (customer), `admin@crediflow.demo` (BNPL administrator), or `bank@crediflow.demo` (bank administrator). Keep passwords private. Use separate browser profiles or sign out between roles; accounts cannot switch their own role. Additional fictional customer accounts can register and create their own initially empty bank account.
+Open `/login`. Use your private hosted demo password supplied in `.local/production-demo-access.txt` with `alice@crediflow.demo` (customer), `admin@crediflow.demo` (BNPL administrator), or `bank@crediflow.demo` (bank administrator). Keep passwords private. Use separate browser profiles or sign out between roles; accounts cannot switch their own role. Additional fictional customer accounts can register and create their own initially empty bank account.
 
 ## Prepare the bank
 

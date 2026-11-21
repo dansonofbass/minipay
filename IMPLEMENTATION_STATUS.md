@@ -1,68 +1,59 @@
 # CrediFlow implementation status
 
-Last checkpoint: 2026-11-21. Runnable local milestone implemented. GitHub publication and its initial CI run are verified. Production deployment remains unverified.
+Checkpoint: 2026-11-21. Core application published, deployed and verified. Broader operational gaps remain explicit below.
 
-## Completed
+## Live resources
 
-- Read implementation brief and inspected empty workspace.
-- Confirmed connected GitHub identity and Vercel team access.
-- Created Vercel project `crediflow-bnpl-simulator` (not deployed).
-- Selected Next.js 16, Prisma 7, Better Auth, PostgreSQL schema isolation, Vercel Queues with durable database job records.
+- Repository: https://github.com/dansonofbass/minipay (private, preserving the user's choice).
+- Application: https://crediflow-bnpl-simulator.vercel.app
+- Portals: `/app`, `/admin`, `/bank`; real browser login verified for all three roles.
+- Existing Vercel project preserved: `prj_v8VfBDmVwEJYWKLUZpNkLt8bBb5a`; Node 24.x, iad1, existing Hobby plan.
+- Managed Neon PostgreSQL: `crediflow-postgres`, free_v3, resource `store_pRM5BoTmbBNdj48x`.
+- Main pushes automatically deploy. Subsequent commits use author `dansonofbass`; existing history was preserved.
 
-## Implemented and locally verified
+## Implemented and verified
 
-- Next.js 16 production build; Better Auth registration, login, cookie sessions and three-role isolation.
-- Real PostgreSQL development database on port 55432, five applied migrations and restricted bank/BNPL database roles.
-- Idempotent base seed: 7 identities, 5 fictional bank accounts, 20 products, one pending request. Verified workflow seed adds Edward active financing, Bob insufficient-cash payment, Charlie insufficient-credit decline, and Diana frozen-account decline.
-- Customer catalog, product details, cart, server-priced checkout, immutable price snapshots and owned payment requests.
-- Manual admin bank checks, approval/rejection, stock reservation and bank credit reservation.
-- Atomic mock-bank debits, financing conversion, repayments, audited balance/limit changes and frozen-account checks.
-- Whole-AMD installment schedules, anchored month-end policy, payment-intent idempotency and concurrent duplicate protection.
-- Balanced immutable bank/BNPL ledgers with ledger-account foreign keys and PostgreSQL constraint triggers.
-- Signed HTTP webhooks, transactional bank outbox, durable BNPL inbox, replay protection and bounded retry histories.
-- Persisted leased jobs, Vercel Queues handler, heartbeat/cron recovery, deterministic worker-interruption checkpoints.
-- Unknown-outcome recovery by original operation ID; reconciliation of bank status, principal, reservations and ledgers.
-- Functional `/app`, `/admin`, `/bank` portals, simulator controls and operational inspectors.
+- Authentication, registration, secure cookie sessions, role and customer ownership checks.
+- Five migrations, restricted bank/BNPL credentials, cross-schema denial and zero Prisma schema drift.
+- Catalog, product details, PostgreSQL cart, server-priced checkout and stock reservation.
+- Manual decisions, bank credit checks, atomic reservation, first-payment financing and ordered installments.
+- Whole AMD arithmetic, four/six monthly payments, remainder preservation and anchored due dates.
+- Persistent idempotency, transaction locks, unique constraints and immutable balanced double-entry journals.
+- Actual bank HTTP boundary, configurable failures/latency, signed webhook outbox/inbox and replay protection.
+- Vercel Queues, durable leases, retries, unknown outcomes, reconciliation and operational inspectors.
+- Three responsive portals, real payment activity chart, OpenAPI, architecture diagrams and browser guide.
+- Base seed plus hosted scenarios: Alice initial funds, Edward active, Bob cash decline, Charlie credit decline, Diana frozen.
 
-## In progress
+## Actual checks
 
-- Managed deployment preparation and final checkpoint documentation.
+- 20 unit tests, 18 PostgreSQL/HTTP integration tests and 3 Playwright Chrome tests: PASS.
+- TypeScript, ESLint, production build, five migrations and schema drift: PASS.
+- Production dependency audit: zero reported vulnerabilities; staged credential-pattern scan: PASS.
+- Runtime-change CI: https://github.com/dansonofbass/minipay/actions/runs/44847350184 — PASS.
+- Hosted registration, all three browser logins, cart reload and mobile rendering: PASS; zero browser JS errors.
+- Hosted automatic approval/payment/inbox/outbox jobs: PASS without a local worker.
+- Hosted first payment: cash 40,000; principal 180,000; available credit 320,000 AMD.
+- Five real signed webhook replays: one financial posting.
+- Post-commit response loss: automatic original-ID recovery, one debit; repeated reconciliation MATCHED.
+- Hosted 100 concurrent Pay requests: 100 successful responses, one intent, one bank debit, one collection posting.
+- Evidence: `docs/verification/hosted-results.json` and `docs/screenshots/hosted-*.png`.
 
-## Pending
+## Live issue fixed
 
-- Managed PostgreSQL authorization, live Vercel deployment and deployed queue/webhook verification.
-- Remaining original-brief acceptance gaps will be enumerated in the implementation report.
+The first live recovery run exposed a lost wakeup: a second mutation in the same second could reuse an already-consumed queue notification key. Commit `c3abe2bd862c9cadd8e5fe056bd7d8ddcaa72ebc` gives notifications independent identities. The original pending operation survived deployment and recovered without a replacement intent. A regression test, fresh hosted workflow and hosted 100-request test passed afterward.
 
-## Tests actually run
+## Security and access
 
-- Production build: PASS (latest build 2026-11-21).
-- TypeScript and ESLint: PASS.
-- Vitest unit tests: 19/19 PASS.
-- Real PostgreSQL + real HTTP integration tests: 18/18 PASS.
-- Integration coverage includes 100 concurrent payment requests -> one debit; Alice cash 40,000 / debt 180,000 / available credit 320,000; post-commit response loss recovery; webhook duplicates; leased-worker recovery; credit races; database isolation; journal balancing and immutability.
-- Playwright Chrome: 3/3 PASS after correcting an ambiguous test selector.
-- npm production dependency audit: 0 vulnerabilities after patched dependency overrides.
+The user explicitly authorized six production Secrets: restricted database URLs, authentication, bank-service, webhook and scheduler keys. Owner credentials and demo passwords were not uploaded. The temporary development owner binding and temporary CLI QA bypass were removed. Private hosted demo access is in ignored `.local/production-demo-access.txt`; local development uses `.local/demo-access.txt`. Never publish either file.
 
-## Deployment
+## Remaining original-brief gaps
 
-NOT VERIFIED. Existing Vercel project preserved and linked locally. Local application responds at http://localhost:3000; health endpoint confirms both PostgreSQL roles can connect. No managed database or live deployment has been claimed.
+- Future automated production migrations require a scoped release credential/pipeline; the current schema is applied and verified.
+- Email verification/recovery delivery, MFA, external monitoring and backup-restore exercises are not configured.
+- Refund/reversal workflows and a global protected demo reset are not implemented; posted history is never deleted.
+- Full OS process-kill matrix and sustained capacity are not established; lease, deployment, response-loss and duplicate-request recovery were tested.
+- Daily cron is configured; its next calendar invocation has not been waited for. Managed queue execution is verified.
 
-## Authorizations / blockers
+## Next tasks
 
-- Neon integration was suggested; its connection is not confirmed. Existing Vercel connector has no PostgreSQL provisioning action.
-- Published repository verified: https://github.com/dansonofbass/minipay (private, as published by the user). Git push access works under the normal Windows account. Future commits use author name `dansonofbass`; existing user-authored history is preserved.
-- GitHub CLI device-login attempts were stopped after the user published through Desktop; no further GitHub authorization is required.
-- npm cache redirected into workspace because default cache is outside writable roots.
-
-## Next steps
-
-Publish subsequent commits as `dansonofbass`, retain the user-published minipay repository, and provision managed PostgreSQL through an authorized provider connection. Then deploy the existing Vercel project and verify live queues/webhooks/portals. Private local demo access is in ignored `.local/demo-access.txt`; no credentials belong in commits.
-
-## GitHub verification
-
-- Repository: https://github.com/dansonofbass/minipay
-- Initial published commit: `5490330ef9557d0a03dc5254d9fdf537d8a57873`.
-- Main-branch CI: PASS, including migrations, drift validation, seed, lint, typecheck, unit/integration/browser tests, build, audit and secret-pattern scan.
-- Evidence: https://github.com/dansonofbass/minipay/actions/runs/44844067770
-- Five applied migrations; latest local suite: 19 unit + 18 PostgreSQL/HTTP + 3 Playwright tests passed.
-- Added persistent cart, stored-payment chart, OpenAPI core contracts and browser-only operational documentation.
+Add release migration gates with explicitly authorized credentials, monitoring and restore exercises, any required compensating reversal/reset workflow, and broader load/crash coverage. No external authorization blocks normal use of the deployed core application.

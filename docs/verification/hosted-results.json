@@ -1,0 +1,58 @@
+{
+  "url": "https://crediflow-bnpl-simulator.vercel.app",
+  "sourceCommit": "c3abe2bd862c9cadd8e5fe056bd7d8ddcaa72ebc",
+  "verificationDeployment": "dpl_3PSFCXUgqyfy1r3m7aarNJNuCJ12",
+  "ci": "https://github.com/dansonofbass/minipay/actions/runs/44847350184",
+  "scope": "Ad hoc verification on isolated fictional accounts; no real money or personal financial data.",
+  "workflow": {
+    "url": "https://crediflow-bnpl-simulator.vercel.app",
+    "verifiedAt": "2026-11-21T01:02:24.709Z",
+    "purchaseId": "d227eebd-e483-46fb-a510-b88b94d79e20",
+    "firstPaymentId": "668e1efe-64b9-4670-b67e-82c088c7a873",
+    "secondPaymentId": "1d5c3880-76b1-4439-8fc9-55704aea97f5",
+    "automaticQueues": true,
+    "webhooks": true,
+    "duplicateReplayCount": 5,
+    "reconciliation": "MATCHED",
+    "publicHealthStatus": 200
+  },
+  "originalPendingRecovery": {
+    "paymentId": "d732a376-7bae-41ed-a830-8f774a081536",
+    "automaticRecovery": true,
+    "cash": "100000",
+    "principal": "120000",
+    "unknownOutcomePersisted": true,
+    "reconciliation": "MATCHED"
+  },
+  "browser": {
+    "url": "https://crediflow-bnpl-simulator.vercel.app",
+    "portals": [
+      {
+        "portal": "/app",
+        "realBrowserLogin": true,
+        "jsErrors": 0
+      },
+      {
+        "portal": "/admin",
+        "realBrowserLogin": true,
+        "jsErrors": 0
+      },
+      {
+        "portal": "/bank",
+        "realBrowserLogin": true,
+        "jsErrors": 0
+      }
+    ],
+    "mobileOverflow": false
+  },
+  "concurrency": {
+    "requests": 100,
+    "httpSuccesses": 100,
+    "paymentIntents": 1,
+    "bankDebits": 1,
+    "bnplPostings": 1,
+    "cash": "40000",
+    "principal": "60000",
+    "automaticManagedQueue": true
+  }
+}
