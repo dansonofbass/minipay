@@ -1,5 +1,4 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
   .split('\0')
   .filter(Boolean);
@@ -13,7 +12,7 @@ for (const file of files) {
   if (file.startsWith('.env') && file !== '.env.example') bad.push(file);
   if (file.startsWith('.local/')) bad.push(file);
   if (/\.(png|jpg|zip)$/.test(file)) continue;
-  const text = readFileSync(file, 'utf8');
+  const text = execFileSync('git', ['show', `:${file}`], { encoding: 'utf8' });
   if (patterns.some((p) => p.test(text))) bad.push(file);
 }
 if (bad.length) {

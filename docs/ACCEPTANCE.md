@@ -38,8 +38,8 @@ Checkpoint: 2026-11-21. VERIFIED below means local evidence only. All deployment
 | Authenticated webhooks            | VERIFIED     | Valid, modified, unsigned and expired signature tests                      |
 | Protected bank APIs               | VERIFIED     | Service bearer authorization test                                          |
 | Server-controlled amounts         | VERIFIED     | Manipulated client price ignored                                           |
-| No committed secrets              | NOT VERIFIED | Tracked-file scan required before first commit                             |
-| GitHub repository exists          | NOT VERIFIED | Local Git repository; CLI authorization confirmation pending               |
+| No committed secrets              | VERIFIED     | Staged source pattern scan passed; ignored credentials excluded            |
+| GitHub repository exists          | VERIFIED     | https://github.com/dansonofbass/minipay, user-published private repository |
 | Production build                  | VERIFIED     | Actual Next.js build passed                                                |
 | Managed persistent database       | NOT VERIFIED | Local PostgreSQL only; Neon connection unconfirmed                         |
 | Live Vercel deployment            | NOT VERIFIED | Project exists; no deployment URL claimed                                  |

@@ -1,6 +1,6 @@
 # CrediFlow implementation status
 
-Last checkpoint: 2026-11-21. Runnable local milestone implemented. Production deployment remains unverified.
+Last checkpoint: 2026-11-21. Runnable local milestone implemented. GitHub publication and its initial CI run are verified. Production deployment remains unverified.
 
 ## Completed
 
@@ -26,11 +26,11 @@ Last checkpoint: 2026-11-21. Runnable local milestone implemented. Production de
 
 ## In progress
 
-- Final source packaging, GitHub CLI authorization confirmation, and publication preparation. Documentation and CI configuration are authored; remote CI is not yet verified.
+- Managed deployment preparation and final checkpoint documentation.
 
 ## Pending
 
-- Managed PostgreSQL authorization, GitHub publication, live Vercel deployment and deployed queue/webhook verification.
+- Managed PostgreSQL authorization, live Vercel deployment and deployed queue/webhook verification.
 - Remaining original-brief acceptance gaps will be enumerated in the implementation report.
 
 ## Tests actually run
@@ -50,10 +50,19 @@ NOT VERIFIED. Existing Vercel project preserved and linked locally. Local applic
 ## Authorizations / blockers
 
 - Neon integration was suggested; its connection is not confirmed. Existing Vercel connector has no PostgreSQL provisioning action.
-- GitHub connector account access exists, but no repository-creation action is exposed and local Git credentials are unavailable.
-- A GitHub Desktop discovery attempt was not executed because automatic approval review hit its usage limit. This was a review failure, not a safety determination. Independent coding continued.
+- Published repository verified: https://github.com/dansonofbass/minipay (private, as published by the user). Git push access works under the normal Windows account. Future commits use author name `dansonofbass`; existing user-authored history is preserved.
+- GitHub CLI device-login attempts were stopped after the user published through Desktop; no further GitHub authorization is required.
 - npm cache redirected into workspace because default cache is outside writable roots.
 
 ## Next steps
 
-Publish the initialized local Git repository once the device authorization reaches the CLI, inspect remote CI, and provision managed PostgreSQL once Neon is connected. Then deploy the existing Vercel project and verify live queues/webhooks/portals. Private local demo access is in ignored `.local/demo-access.txt`; no credentials belong in commits.
+Publish subsequent commits as `dansonofbass`, retain the user-published minipay repository, and provision managed PostgreSQL through an authorized provider connection. Then deploy the existing Vercel project and verify live queues/webhooks/portals. Private local demo access is in ignored `.local/demo-access.txt`; no credentials belong in commits.
+
+## GitHub verification
+
+- Repository: https://github.com/dansonofbass/minipay
+- Initial published commit: `5490330ef9557d0a03dc5254d9fdf537d8a57873`.
+- Main-branch CI: PASS, including migrations, drift validation, seed, lint, typecheck, unit/integration/browser tests, build, audit and secret-pattern scan.
+- Evidence: https://github.com/dansonofbass/minipay/actions/runs/44844067770
+- Five applied migrations; latest local suite: 19 unit + 18 PostgreSQL/HTTP + 3 Playwright tests passed.
+- Added persistent cart, stored-payment chart, OpenAPI core contracts and browser-only operational documentation.

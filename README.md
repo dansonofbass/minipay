@@ -2,9 +2,11 @@
 
 A fictional buy now, pay later platform and persistent Mock Bank built with Next.js, TypeScript, PostgreSQL, Prisma, Better Auth, and Vercel Queues.
 
-**Status: runnable and tested locally. Managed PostgreSQL, GitHub publication, and live Vercel operation are not yet verified.** See [implementation status](IMPLEMENTATION_STATUS.md) for evidence and remaining work.
+**Status: runnable and tested locally. GitHub source and CI are verified; managed PostgreSQL and live Vercel operation are not yet verified.** See [implementation status](IMPLEMENTATION_STATUS.md) for evidence and remaining work.
 
 ![Customer portal](docs/screenshots/customer.png)
+
+Repository: https://github.com/dansonofbass/minipay
 
 ## Explore in the browser
 
@@ -27,7 +29,7 @@ Read the [browser-only walkthrough](docs/DEMO-WALKTHROUGH.md). All balances, ide
 
 ## Verification
 
-The latest recorded checks are 19 passing unit tests, 18 passing PostgreSQL/HTTP integration tests, and 3 passing Playwright Chrome tests. Production build, TypeScript, ESLint, and production dependency audit passed. CI configuration is supplied but has not been executed on GitHub yet. [Testing details](docs/TESTING.md) distinguish local verification from unverified hosted behavior.
+The latest recorded checks are 19 passing unit tests, 18 passing PostgreSQL/HTTP integration tests, and 3 passing Playwright Chrome tests. Production build, TypeScript, ESLint, and production dependency audit passed. The initial main-branch [GitHub CI run passed](https://github.com/dansonofbass/minipay/actions/runs/44844067770). [Testing details](docs/TESTING.md) distinguish local verification from unverified hosted behavior.
 
 ## Architecture and operations
 

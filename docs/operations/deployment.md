@@ -6,11 +6,11 @@ The existing Vercel project is `crediflow-bnpl-simulator`; do not recreate it. L
 
 Authorize the Neon integration to provision a managed PostgreSQL database. Generate separate runtime roles, apply the migration history using the owner connection, and apply schema-specific grants. Keep the owner connection out of application runtime settings. The local PostgreSQL cluster is development-only.
 
-GitHub connector account access is confirmed, but the available connector has no repository-creation action and local Git credentials are unavailable. Repository publication requires an authorized creation/push path. A previous GitHub Desktop discovery attempt was blocked by an automatic approval-review usage limit, so no UI action or publication occurred.
+The source repository is https://github.com/dansonofbass/minipay, published privately by the user through GitHub Desktop. Preserve its existing visibility and history. Normal Windows-user Git access is verified; commits made during this work use `dansonofbass`. The initial CI run passed.
 
 Production environment settings need `DATABASE_URL`, `BANK_DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `APP_URL`, `BANK_SERVICE_SECRET`, `WEBHOOK_SECRET`, and `CRON_SECRET`. A previous signing secret is optional for rotation. Migration and seed secrets belong only in the authorized provisioning environment. Use a separate private production demo password and seed explicitly once; normal deploys never reset seed data.
 
-The Queues consumer is registered in `vercel.json`. It stores jobs before enqueueing, processes leases idempotently, and sends delayed heartbeat messages. The daily cron authenticates using `CRON_SECRET`, reconciles, and wakes the queue. Verify Queues entitlement, cron delivery, heartbeat recovery and webhook HTTP access in the target account. Deployment Protection must allow the authenticated internal bank and webhook calls through an authorized supported mechanism; do not disable protections as a workaround without authorization.
+The Queues consumer is registered in `vercel.json`. It stores jobs before enqueueing, processes leases idempotently, and sends delayed heartbeat messages based on the next job or outbox deadline. Idle wakeups are fifteen minutes apart; pending work wakes sooner. The daily cron authenticates using `CRON_SECRET`, reconciles, and wakes the queue. Verify Queues entitlement, cron delivery, heartbeat recovery and webhook HTTP access in the target account. Deployment Protection must allow the authenticated internal bank and webhook calls through an authorized supported mechanism; do not disable protections as a workaround without authorization.
 
 ## Costs and limits
 

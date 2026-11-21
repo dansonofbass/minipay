@@ -2,18 +2,18 @@
 
 Latest recorded local verification: 2026-11-21.
 
-| Check                                            | Actual result                   |
-| ------------------------------------------------ | ------------------------------- |
-| Prisma schema generation and five migrations     | PASS on real local PostgreSQL   |
-| Production Next.js build                         | PASS                            |
-| TypeScript                                       | PASS                            |
-| ESLint                                           | PASS                            |
-| Unit tests                                       | 19 passed                       |
-| PostgreSQL + real HTTP integration tests         | 18 passed                       |
-| Playwright Chrome tests                          | 3 passed                        |
-| Production dependency audit                      | 0 reported vulnerabilities      |
-| GitHub Actions execution                         | NOT VERIFIED; workflow authored |
-| Hosted database, Queues and Vercel browser flows | NOT VERIFIED                    |
+| Check                                            | Actual result                     |
+| ------------------------------------------------ | --------------------------------- |
+| Prisma schema generation and five migrations     | PASS on real local PostgreSQL     |
+| Production Next.js build                         | PASS                              |
+| TypeScript                                       | PASS                              |
+| ESLint                                           | PASS                              |
+| Unit tests                                       | 19 passed                         |
+| PostgreSQL + real HTTP integration tests         | 18 passed                         |
+| Playwright Chrome tests                          | 3 passed                          |
+| Production dependency audit                      | 0 reported vulnerabilities        |
+| GitHub Actions execution                         | PASS: main-branch run 44844067770 |
+| Hosted database, Queues and Vercel browser flows | NOT VERIFIED                      |
 
 Integration tests use the actual running Next.js server and PostgreSQL runtime roles. They create fictional accounts and operations and exercise registration, RBAC, CSRF, server-authoritative pricing, manual review, reservation, first payment, insufficient-cash decline, 100 concurrent requests, response-loss recovery, repeated reconciliation, duplicate/out-of-order notifications, expired worker leases, credit races, journal constraints, and schema isolation.
 

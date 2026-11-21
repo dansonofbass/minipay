@@ -12,11 +12,9 @@ Evidence: 19 unit tests, 18 PostgreSQL/HTTP integration tests, 3 Playwright Chro
 
 | Requirement                                        | Status and limit                                                                                                                             |
 | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| GitHub repository published                        | NOT VERIFIED; local repository initialized, authenticated creation/push path needed                                                          |
 | Managed PostgreSQL                                 | NOT VERIFIED; Neon connection pending                                                                                                        |
 | Vercel deployed application                        | NOT VERIFIED; existing project preserved, no live URL claimed                                                                                |
 | Deployed Queues, heartbeat, cron, webhooks         | NOT VERIFIED; source configuration and local persistence tests exist                                                                         |
-| GitHub CI runs                                     | NOT VERIFIED; workflow authored, not executed remotely                                                                                       |
 | Public email verification and password recovery    | NOT VERIFIED; email service not configured                                                                                                   |
 | Automated production migrations                    | NOT VERIFIED; migration files and CI validation exist; production provisioning gate required                                                 |
 | Protected demo reset                               | NOT VERIFIED; intentionally no destructive reset action implemented                                                                          |
@@ -27,6 +25,8 @@ Evidence: 19 unit tests, 18 PostgreSQL/HTTP integration tests, 3 Playwright Chro
 
 ## External access
 
-GitHub and Vercel account connectors were readable. The supplied Vercel connector exposes no managed PostgreSQL provisioning action; Neon was suggested but its connection is unconfirmed. The GitHub connector exposes no repository creation, and local Git credentials were unavailable. A native GitHub Desktop discovery attempt was rejected by automatic approval review due to a usage limit; no action executed. Continue independent implementation and use an authorized publishing path when available.
+The user published https://github.com/dansonofbass/minipay through GitHub Desktop. Repository access and Git push credentials were verified under the normal Windows account. Future commits use the author name `dansonofbass`; existing history is preserved. The initial main-branch CI passed: https://github.com/dansonofbass/minipay/actions/runs/44844067770.
+
+Vercel project identity is preserved and Node.js is configured to the locally tested 24.x runtime. No managed database integration or project environment variables are configured yet. Neon connection/provisioning is still pending.
 
 No secrets are included in tracked source. Private local access is in ignored `.local/demo-access.txt`. The local application currently runs at http://localhost:3000 with real PostgreSQL. Source and documentation are prepared for further hosted verification; they are not evidence of a completed deployment.
