@@ -1,0 +1,356 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+  schemas = ["identity", "bnpl", "bank"]
+}
+model User {
+  id String @id
+  name String
+  email String @unique
+  emailVerified Boolean @default(false)
+  image String?
+  role String @default("CUSTOMER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions Session[]
+  accounts Account[]
+  purchases Purchase[]
+  bankLink BankLink?
+  cartItems CartItem[]
+  @@schema("identity")
+}
+model Session {
+  id String @id
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId String
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  @@index([userId])
+  @@schema("identity")
+}
+model Account {
+  id String @id
+  accountId String
+  providerId String
+  userId String
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  accessToken String?
+  refreshToken String?
+  idToken String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope String?
+  password String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId])
+  @@unique([providerId,accountId])
+  @@schema("identity")
+}
+model Verification {
+  id String @id
+  identifier String
+  value String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([identifier])
+  @@schema("identity")
+}
+model RateLimit {
+  id String @id @default(uuid())
+  key String @unique
+  count Int
+  lastRequest BigInt
+  @@schema("identity")
+}
+model BankLink {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields:[userId],references:[id])
+  accountId String @unique
+  createdAt DateTime @default(now())
+  @@schema("bnpl")
+}
+model Product {
+  id String @id
+  name String
+  category String
+  description String
+  price BigInt
+  stock Int @default(20)
+  icon String
+  purchases PurchaseItem[]
+  cartItems CartItem[]
+  @@schema("bnpl")
+}
+model CartItem {
+  userId String
+  user User @relation(fields:[userId],references:[id],onDelete:NoAction,onUpdate:NoAction)
+  productId String
+  product Product @relation(fields:[productId],references:[id],onDelete:NoAction,onUpdate:NoAction)
+  quantity Int
+  @@id([userId,productId])
+  @@schema("bnpl")
+}
+model Purchase {
+  id String @id @default(uuid())
+  customerId String
+  customer User @relation(fields:[customerId],references:[id])
+  accountId String
+  total BigInt
+  count Int
+  status String @default("PENDING_REVIEW")
+  reason String?
+  reservationId String? @unique
+  decisionBy String?
+  decisionAt DateTime?
+  expiresAt DateTime?
+  bankCheck Json?
+  items PurchaseItem[]
+  installments Installment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([customerId,createdAt])
+  @@index([status])
+  @@schema("bnpl")
+}
+model PurchaseItem {
+  id String @id @default(uuid())
+  purchaseId String
+  purchase Purchase @relation(fields:[purchaseId],references:[id])
+  productId String
+  product Product @relation(fields:[productId],references:[id])
+  name String
+  unitPrice BigInt
+  quantity Int
+  @@schema("bnpl")
+}
+model Installment {
+  id String @id @default(uuid())
+  purchaseId String
+  purchase Purchase @relation(fields:[purchaseId],references:[id])
+  number Int
+  amount BigInt
+  dueAt DateTime
+  status String @default("SCHEDULED")
+  paidAt DateTime?
+  payments Payment[]
+  @@unique([purchaseId,number])
+  @@index([status,dueAt])
+  @@schema("bnpl")
+}
+model Payment {
+  id String @id @default(uuid())
+  installmentId String
+  installment Installment @relation(fields:[installmentId],references:[id])
+  attempt Int
+  accountId String
+  amount BigInt
+  status String @default("PENDING")
+  bankVersion Int @default(0)
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([installmentId,attempt])
+  @@index([status])
+  @@schema("bnpl")
+}
+model Idempotency {
+  id String @id
+  hash String
+  reference String
+  createdAt DateTime @default(now())
+  @@schema("bnpl")
+}
+model Journal {
+  id String @id
+  reference String
+  kind String
+  entries Entry[]
+  createdAt DateTime @default(now())
+  @@schema("bnpl")
+}
+model Entry {
+  id String @id @default(uuid())
+  journalId String
+  journal Journal @relation(fields:[journalId],references:[id])
+  account String
+  ledgerAccount LedgerAccount @relation(fields: [account], references: [code], map: "ledger_account_fk", onDelete: NoAction, onUpdate: NoAction)
+  debit BigInt @default(0)
+  credit BigInt @default(0)
+  @@index([journalId])
+  @@schema("bnpl")
+}
+model LedgerAccount {
+  code String @id
+  entries Entry[]
+  @@schema("bnpl")
+}
+model Job {
+  id String @id
+  kind String
+  reference String
+  status String @default("READY")
+  attempts Int @default(0)
+  leaseToken String?
+  leaseUntil DateTime?
+  availableAt DateTime @default(now())
+  error String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([status,availableAt])
+  @@schema("bnpl")
+}
+model JobAttempt {
+  id String @id @default(uuid())
+  jobId String
+  attempt Int
+  status String
+  error String?
+  createdAt DateTime @default(now())
+  @@index([jobId])
+  @@schema("bnpl")
+}
+model Inbox {
+  id String @id
+  payload Json
+  processedAt DateTime?
+  receivedAt DateTime @default(now())
+  deliveries Int @default(1)
+  @@schema("bnpl")
+}
+model Audit {
+  id String @id @default(uuid())
+  actor String
+  action String
+  reference String
+  detail Json?
+  createdAt DateTime @default(now())
+  @@index([reference,createdAt])
+  @@schema("bnpl")
+}
+model Reconciliation {
+  id String @id @default(uuid())
+  status String
+  findings Json
+  createdAt DateTime @default(now())
+  @@schema("bnpl")
+}
+model BankAccount {
+  id String @id
+  customerId String @unique
+  name String
+  number String @unique
+  currency String @default("AMD")
+  cash BigInt @default(0)
+  creditLimit BigInt @default(0)
+  used BigInt @default(0)
+  reserved BigInt @default(0)
+  status String @default("ACTIVE")
+  reservations Reservation[]
+  operations BankOperation[]
+  createdAt DateTime @default(now())
+  @@schema("bank")
+}
+model Reservation {
+  id String @id
+  accountId String
+  account BankAccount @relation(fields:[accountId],references:[id])
+  purchaseId String @unique
+  amount BigInt
+  outstanding BigInt @default(0)
+  status String @default("RESERVED")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([status,expiresAt])
+  @@schema("bank")
+}
+model BankOperation {
+  id String @id
+  accountId String
+  account BankAccount @relation(fields:[accountId],references:[id])
+  kind String
+  hash String
+  amount BigInt
+  reservationId String?
+  status String
+  version Int @default(1)
+  reason String?
+  createdAt DateTime @default(now())
+  @@index([accountId,createdAt])
+  @@schema("bank")
+}
+model BankJournal {
+  id String @id
+  reference String
+  kind String
+  entries BankEntry[]
+  createdAt DateTime @default(now())
+  @@schema("bank")
+}
+model BankEntry {
+  id String @id @default(uuid())
+  journalId String
+  journal BankJournal @relation(fields:[journalId],references:[id])
+  account String
+  ledgerAccount BankLedgerAccount @relation(fields: [account], references: [code], map: "bank_ledger_account_fk", onDelete: NoAction, onUpdate: NoAction)
+  debit BigInt @default(0)
+  credit BigInt @default(0)
+  @@index([journalId])
+  @@schema("bank")
+}
+model BankLedgerAccount {
+  code String @id
+  entries BankEntry[]
+  @@schema("bank")
+}
+model BankEvent {
+  id String @id @default(uuid())
+  operationId String
+  type String
+  payload Json
+  status String @default("READY")
+  attempts Int @default(0)
+  availableAt DateTime @default(now())
+  deliveredAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([status,availableAt])
+  @@schema("bank")
+}
+model Delivery {
+  id String @id @default(uuid())
+  eventId String
+  status Int
+  error String?
+  createdAt DateTime @default(now())
+  @@index([eventId])
+  @@schema("bank")
+}
+model Simulator {
+  id String @id @default("default")
+  version Int @default(1)
+  config Json
+  nextScenario String?
+  updatedAt DateTime @updatedAt
+  @@schema("bank")
+}
+model SimulationLog {
+  id String @id @default(uuid())
+  operationId String
+  correlationId String
+  scenario String
+  configVersion Int
+  latencyMs Int
+  durationMs Int
+  httpStatus Int
+  createdAt DateTime @default(now())
+  @@schema("bank")
+}

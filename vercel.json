@@ -1,0 +1,10 @@
+{
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/queues/jobs/route.ts": {
+      "maxDuration": 300,
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "crediflow-jobs" }]
+    }
+  },
+  "crons": [{ "path": "/api/internal/tick?reconcile=true", "schedule": "0 4 * * *" }]
+}

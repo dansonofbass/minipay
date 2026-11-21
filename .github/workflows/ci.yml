@@ -1,0 +1,60 @@
+name: Financial correctness and security
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: crediflow
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_database_password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/ci-env.mjs
+      - run: npm run db:generate
+      - run: npm run db:migrate
+      - run: npx tsx scripts/provision-roles.ts
+      - run: npm run db:grants
+      - run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - run: npm run db:seed
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: node scripts/secret-check.mjs
+      - name: Integration and browser verification
+        run: |
+          npm run start > /tmp/crediflow-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:3000/api/health; then break; fi
+            sleep 2
+          done
+          npm run test:integration
+          npx playwright install --with-deps chrome
+          npm run test:e2e
+          node scripts/smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-evidence
+          path: |
+            playwright-report/
+            test-results/
+            /tmp/crediflow-server.log
