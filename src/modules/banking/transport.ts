@@ -55,16 +55,18 @@ export async function simulated<T>(
     status = error instanceof DomainError ? error.status : 500;
     throw error;
   } finally {
-    await db('bank').simulationLog.create({
-      data: {
-        operationId,
-        correlationId,
-        scenario,
-        configVersion: settings.version,
-        latencyMs: latency,
-        durationMs: Date.now() - started,
-        httpStatus: status,
-      },
-    });
+    await db('bank')
+      .simulationLog.create({
+        data: {
+          operationId,
+          correlationId,
+          scenario,
+          configVersion: settings.version,
+          latencyMs: latency,
+          durationMs: Date.now() - started,
+          httpStatus: status,
+        },
+      })
+      .catch(() => console.warn(JSON.stringify({ type: 'SIMULATION_TELEMETRY_UNAVAILABLE' })));
   }
 }

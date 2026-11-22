@@ -1,6 +1,25 @@
 # CrediFlow implementation status
 
-Checkpoint: 2026-11-21. Core application published, deployed and verified. Broader operational gaps remain explicit below.
+Checkpoint: 2026-11-22. Core application remains deployed; the new Operations Center is implemented and verified locally, with production release awaiting explicit approval.
+
+## Operations Center checkpoint - 2026-11-22
+
+Implemented in the existing application, with no separate application or financial history reset:
+
+- All twelve protected `/admin/operations/*` views, persisted cross-domain timelines, Simple/Technical mode, curated 24-topic learning guide, 15-second visible-tab polling and manual refresh.
+- Three additive migrations (eight total): immutable transaction-bound event capture, technical telemetry, bank audit, error review state, identity/login audit and diagnostic indexes. Existing payment/inbox/outbox/job/ledger records remain authoritative.
+- Correlation, request and trace context across HTTP, bank calls and transaction helpers; durable purchase/payment/job/event IDs connect asynchronous work. Validated W3C traceparent propagation; external OpenTelemetry exporter is not configured.
+- Bank execution scenarios, versioned configuration history, observed timings and committed-before-response-loss evidence. Unknown outcomes, duplicate requests, duplicate webhooks, postings, worker attempts and reconciliation comparisons are visible.
+- Confirmed role-checked recovery controls, original-ID retries/replay, preserved attempt history, transaction-bound action audit, manual error acknowledgment/resolution, authorized bounded CSV with formula protection and printable reports.
+- Read-only allowlisted database diagnostics, structured redaction, immutable business/audit retention, bounded 30-day technical-log cleanup, pagination/date/query bounds and indexes.
+- Added `db:release`: migration deploy, runtime grants and zero-drift gate, without seeding or resetting financial data.
+- Six requested guides: `docs/OBSERVABILITY.md`, `OPERATIONS-CENTER.md`, `LOGGING-ARCHITECTURE.md`, `TRANSACTION-TRACING.md`, `ERROR-RECOVERY.md`, `LEARNING-GUIDE.md`.
+
+Verified locally: 25 unit tests, 30 real PostgreSQL/HTTP tests, 4 Chrome browser tests, TypeScript, ESLint, production build and zero schema drift. First-installment acceptance: bank debit committed, HTTP response lost, original job recovered on its second attempt, delayed signed webhook and duplicate delivery accepted, repeated payment reused the same intent, installment PAID, purchase ACTIVE, exactly one collection posting. A separate pre-commit TIMEOUT and failed/dead job are persisted and inspectable. Evidence: `docs/verification/operations-results.json` and `docs/screenshots/operations-*.png`.
+
+**Production release pending explicit approval.** Automatic approval review rejected applying migrations/runtime grants to the existing managed production database, stating that trusted authorization for that exact production mutation was required. No escalation workaround was attempted, no production deployment or push was performed, and the existing live application remains on its previous release. The release also needs investigation of a schema-engine connection error observed under the restricted executor before escalation; existing owner/runtime PostgreSQL connections were independently verified read-only.
+
+Remaining operational limits: no external trace collector, provider slow-query/CPU/lock metrics or alert delivery; historical events are not fabricated/backfilled; legal archival policy and full OS process-kill/load matrices remain unverified. Technical cleanup is bounded per worker tick and may lag if scheduling stops. Cross-domain reads are paginated snapshots, not a distributed database transaction. Eight migrations are applied locally; a read-only production check confirmed five applied migrations and no OperationEvent table. Production retains the prior schema until approval.
 
 ## Live resources
 

@@ -1,0 +1,1197 @@
+{
+  "checkedAt": "2026-11-22T13:21:38.057Z",
+  "environment": "Local real PostgreSQL and HTTP; production release blocked by automatic approval review",
+  "purchaseId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+  "paymentId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+  "purchaseStatus": "ACTIVE",
+  "installmentStatus": "PAID",
+  "paymentStatus": "SUCCEEDED",
+  "bankStatus": "SUCCEEDED",
+  "collectionPostings": 1,
+  "workerAttempts": 2,
+  "timeline": [
+    {
+      "timestamp": "2026-11-22T13:18:34.876Z",
+      "type": "PRINCIPAL_RECONCILED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:34.360Z",
+      "type": "BankEvent_DELIVERED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "DELIVERED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:34.348Z",
+      "type": "Delivery_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "200",
+      "metadata": {
+        "httpStatus": 200,
+        "webhookEventId": "292124f2-72b7-452d-8427-165298d164ba"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:34.314Z",
+      "type": "WEBHOOK_ACCEPTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "deliveries": 1,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "292124f2-72b7-452d-8427-165298d164ba"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.951Z",
+      "type": "JobAttempt_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "result": "DONE",
+        "status": "DONE",
+        "attempt": 2,
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.945Z",
+      "type": "Job_DONE",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "status": "DONE",
+        "attempt": 2,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RUNNING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.716Z",
+      "type": "PAYMENT_FINALIZED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.701Z",
+      "type": "PAYMENT_RECOVERED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.666Z",
+      "type": "Payment_SUCCEEDED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SUCCEEDED",
+      "metadata": {
+        "status": "SUCCEEDED",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.649Z",
+      "type": "Installment_PAID",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PAID",
+      "metadata": {
+        "status": "PAID",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.627Z",
+      "type": "LEDGER_POSTING_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.556Z",
+      "type": "SimulationLog_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "INSERT",
+      "metadata": {
+        "scenario": "HEALTHY",
+        "committed": true,
+        "latencyMs": 0,
+        "durationMs": 127,
+        "httpStatus": 200,
+        "configVersion": 74
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.546Z",
+      "type": "BankEvent_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "READY",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.536Z",
+      "type": "BankOperation_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "SUCCEEDED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.526Z",
+      "type": "BankJournal_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "INSERT",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.498Z",
+      "type": "BankJournal_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "INSERT",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.477Z",
+      "type": "Reservation_COMMITTED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "COMMITTED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:33.181Z",
+      "type": "Job_RUNNING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RUNNING",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "status": "RUNNING",
+        "attempt": 2,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RETRY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:32.391Z",
+      "type": "WEBHOOK_PROCESSED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "UPDATE",
+      "metadata": {
+        "status": "UPDATE",
+        "deliveries": 1,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "57878adf-310a-4d6b-a051-2ca63c50a969"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.959Z",
+      "type": "JobAttempt_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "FAILED",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "result": "FAILED",
+        "status": "FAILED",
+        "attempt": 1,
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.955Z",
+      "type": "Job_RETRY",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RETRY",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "status": "RETRY",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RUNNING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.949Z",
+      "type": "PAYMENT_OUTCOME_UNKNOWN",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.946Z",
+      "type": "Installment_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PAYMENT_PENDING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.943Z",
+      "type": "Payment_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PENDING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.924Z",
+      "type": "SimulationLog_CREATED",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "INSERT",
+      "metadata": {
+        "scenario": "TIMEOUT",
+        "committed": false,
+        "latencyMs": 0,
+        "durationMs": 17,
+        "httpStatus": 504,
+        "configVersion": 73
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.918Z",
+      "type": "Simulator_UPDATE",
+      "service": "bank",
+      "correlationId": "225acb32-dbc4-47e6-aa2d-27cffc5da254",
+      "status": "UPDATE",
+      "metadata": {
+        "after": {
+          "randomSeed": "crediflow",
+          "timeoutRate": 10,
+          "baseLatencyMs": 500,
+          "httpErrorRate": 10,
+          "webhookDelayMs": 0,
+          "randomLatencyMs": 1200,
+          "simulationEnabled": false,
+          "retryableErrorRate": 0,
+          "webhookFailureRate": 0,
+          "webhookDuplicateRate": 0,
+          "timeoutAfterCommitRate": 0
+        },
+        "before": {
+          "randomSeed": "crediflow",
+          "timeoutRate": 10,
+          "baseLatencyMs": 500,
+          "httpErrorRate": 10,
+          "webhookDelayMs": 0,
+          "randomLatencyMs": 1200,
+          "simulationEnabled": false,
+          "retryableErrorRate": 0,
+          "webhookFailureRate": 0,
+          "webhookDuplicateRate": 0,
+          "timeoutAfterCommitRate": 0
+        },
+        "version": 73,
+        "previousVersion": 73
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.738Z",
+      "type": "Job_RUNNING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RUNNING",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "status": "RUNNING",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "READY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.616Z",
+      "type": "PAYMENT_INITIATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.607Z",
+      "type": "Job_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "READY",
+      "metadata": {
+        "jobId": "pay:225acb32-dbc4-47e6-aa2d-27cffc5da254",
+        "status": "READY",
+        "attempt": 0,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.598Z",
+      "type": "Installment_PAYMENT_PENDING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PAYMENT_PENDING",
+      "metadata": {
+        "status": "PAYMENT_PENDING",
+        "previousStatus": "SCHEDULED"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:18.587Z",
+      "type": "Payment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING",
+      "metadata": {
+        "status": "PENDING",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:17.422Z",
+      "type": "PRINCIPAL_RECONCILED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:17.185Z",
+      "type": "IDEMPOTENT_PAYMENT_REUSED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:17.109Z",
+      "type": "DUPLICATE_WEBHOOK_DETECTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "UPDATE",
+      "metadata": {
+        "status": "UPDATE",
+        "deliveries": 2,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "44df7377-c410-4ce8-be17-fac8b5447efe"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:17.066Z",
+      "type": "WEBHOOK_PROCESSED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "UPDATE",
+      "metadata": {
+        "status": "UPDATE",
+        "deliveries": 1,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "44df7377-c410-4ce8-be17-fac8b5447efe"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:17.058Z",
+      "type": "DUPLICATE_FINANCIAL_EFFECT_PREVENTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.948Z",
+      "type": "BankEvent_DELIVERED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "DELIVERED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.943Z",
+      "type": "Delivery_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "200",
+      "metadata": {
+        "httpStatus": 200,
+        "webhookEventId": "44df7377-c410-4ce8-be17-fac8b5447efe"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.926Z",
+      "type": "WEBHOOK_ACCEPTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "deliveries": 1,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "44df7377-c410-4ce8-be17-fac8b5447efe"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.893Z",
+      "type": "BankEvent_DELIVERED",
+      "service": "bank",
+      "correlationId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DELIVERED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.889Z",
+      "type": "Delivery_CREATED",
+      "service": "bank",
+      "correlationId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "200",
+      "metadata": {
+        "httpStatus": 200,
+        "webhookEventId": "57878adf-310a-4d6b-a051-2ca63c50a969"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.866Z",
+      "type": "WEBHOOK_ACCEPTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "deliveries": 1,
+        "verification": "VERIFIED",
+        "previousStatus": null,
+        "webhookEventId": "57878adf-310a-4d6b-a051-2ca63c50a969"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.512Z",
+      "type": "JobAttempt_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "result": "DONE",
+        "status": "DONE",
+        "attempt": 2,
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.508Z",
+      "type": "Job_DONE",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "DONE",
+        "attempt": 2,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RUNNING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.373Z",
+      "type": "PAYMENT_FINALIZED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.367Z",
+      "type": "PAYMENT_RECOVERED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.362Z",
+      "type": "Payment_SUCCEEDED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SUCCEEDED",
+      "metadata": {
+        "status": "SUCCEEDED",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.351Z",
+      "type": "Purchase_ACTIVE",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "ACTIVE",
+      "metadata": {
+        "status": "ACTIVE",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.347Z",
+      "type": "Installment_PAID",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PAID",
+      "metadata": {
+        "status": "PAID",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.337Z",
+      "type": "LEDGER_POSTING_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.321Z",
+      "type": "Installment_SCHEDULED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": "SCHEDULED"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.318Z",
+      "type": "Installment_SCHEDULED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": "SCHEDULED"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.314Z",
+      "type": "Installment_SCHEDULED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": "SCHEDULED"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.311Z",
+      "type": "Installment_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PENDING_RECONCILIATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.299Z",
+      "type": "LEDGER_POSTING_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.276Z",
+      "type": "LEDGER_POSTING_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.110Z",
+      "type": "Job_RUNNING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RUNNING",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "RUNNING",
+        "attempt": 2,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RETRY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:16.102Z",
+      "type": "Job_RETRY",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RETRY",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "RETRY",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RETRY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.998Z",
+      "type": "JobAttempt_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "FAILED",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "result": "FAILED",
+        "status": "FAILED",
+        "attempt": 1,
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.995Z",
+      "type": "Job_RETRY",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RETRY",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "RETRY",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RUNNING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.986Z",
+      "type": "PAYMENT_OUTCOME_UNKNOWN",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.980Z",
+      "type": "Purchase_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PAYMENT_PENDING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.974Z",
+      "type": "Installment_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PAYMENT_PENDING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.970Z",
+      "type": "Payment_PENDING_RECONCILIATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_RECONCILIATION",
+      "metadata": {
+        "status": "PENDING_RECONCILIATION",
+        "previousStatus": "PENDING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.951Z",
+      "type": "SimulationLog_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "INSERT",
+      "metadata": {
+        "scenario": "RESPONSE_LOST",
+        "committed": true,
+        "latencyMs": 0,
+        "durationMs": 236,
+        "httpStatus": 504,
+        "configVersion": 70
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.941Z",
+      "type": "BankEvent_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "READY",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.934Z",
+      "type": "BankOperation_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "SUCCEEDED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.917Z",
+      "type": "BankJournal_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "INSERT",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.898Z",
+      "type": "BankJournal_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "INSERT",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.792Z",
+      "type": "BankJournal_CREATED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "INSERT",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.762Z",
+      "type": "Reservation_COMMITTED",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "COMMITTED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.735Z",
+      "type": "Simulator_UPDATE",
+      "service": "bank",
+      "correlationId": "b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+      "status": "UPDATE",
+      "metadata": {
+        "after": {
+          "randomSeed": "crediflow",
+          "timeoutRate": 10,
+          "baseLatencyMs": 500,
+          "httpErrorRate": 10,
+          "webhookDelayMs": 0,
+          "randomLatencyMs": 1200,
+          "simulationEnabled": false,
+          "retryableErrorRate": 0,
+          "webhookFailureRate": 0,
+          "webhookDuplicateRate": 0,
+          "timeoutAfterCommitRate": 0
+        },
+        "before": {
+          "randomSeed": "crediflow",
+          "timeoutRate": 10,
+          "baseLatencyMs": 500,
+          "httpErrorRate": 10,
+          "webhookDelayMs": 0,
+          "randomLatencyMs": 1200,
+          "simulationEnabled": false,
+          "retryableErrorRate": 0,
+          "webhookFailureRate": 0,
+          "webhookDuplicateRate": 0,
+          "timeoutAfterCommitRate": 0
+        },
+        "version": 70,
+        "previousVersion": 70
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.453Z",
+      "type": "Job_RUNNING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RUNNING",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "RUNNING",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "READY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.361Z",
+      "type": "PAYMENT_INITIATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.356Z",
+      "type": "Job_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "READY",
+      "metadata": {
+        "jobId": "pay:b0a458f1-ee7b-4c5e-8528-8bfad44847bb",
+        "status": "READY",
+        "attempt": 0,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.349Z",
+      "type": "Purchase_PAYMENT_PENDING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PAYMENT_PENDING",
+      "metadata": {
+        "status": "PAYMENT_PENDING",
+        "previousStatus": "APPROVED_AWAITING_PAYMENT"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.345Z",
+      "type": "Installment_PAYMENT_PENDING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PAYMENT_PENDING",
+      "metadata": {
+        "status": "PAYMENT_PENDING",
+        "previousStatus": "SCHEDULED"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.336Z",
+      "type": "Payment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING",
+      "metadata": {
+        "status": "PENDING",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.249Z",
+      "type": "JobAttempt_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+        "result": "DONE",
+        "status": "DONE",
+        "attempt": 1,
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.243Z",
+      "type": "Job_DONE",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "DONE",
+      "metadata": {
+        "jobId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+        "status": "DONE",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "RUNNING"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.178Z",
+      "type": "CREDIT_RESERVED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.169Z",
+      "type": "Purchase_APPROVED_AWAITING_PAYMENT",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "APPROVED_AWAITING_PAYMENT",
+      "metadata": {
+        "status": "APPROVED_AWAITING_PAYMENT",
+        "previousStatus": "AWAITING_BANK_CONFIRMATION"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.161Z",
+      "type": "Installment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.160Z",
+      "type": "Installment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.160Z",
+      "type": "Installment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.159Z",
+      "type": "Installment_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SCHEDULED",
+      "metadata": {
+        "status": "SCHEDULED",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.130Z",
+      "type": "SimulationLog_CREATED",
+      "service": "bank",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "scenario": "HEALTHY",
+        "committed": true,
+        "latencyMs": 0,
+        "durationMs": 52,
+        "httpStatus": 200,
+        "configVersion": 69
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.123Z",
+      "type": "BankEvent_CREATED",
+      "service": "bank",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "READY",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.116Z",
+      "type": "BankOperation_CREATED",
+      "service": "bank",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "SUCCEEDED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:15.108Z",
+      "type": "Reservation_CREATED",
+      "service": "bank",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RESERVED",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.959Z",
+      "type": "Job_RUNNING",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "RUNNING",
+      "metadata": {
+        "jobId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+        "status": "RUNNING",
+        "attempt": 1,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": "READY"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.936Z",
+      "type": "ADMIN_APPROVED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.932Z",
+      "type": "Purchase_AWAITING_BANK_CONFIRMATION",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "AWAITING_BANK_CONFIRMATION",
+      "metadata": {
+        "status": "AWAITING_BANK_CONFIRMATION",
+        "previousStatus": "PENDING_REVIEW"
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.926Z",
+      "type": "Job_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "READY",
+      "metadata": {
+        "jobId": "approve:aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+        "status": "READY",
+        "attempt": 0,
+        "retryPolicy": "8 automatic attempts; exponential backoff and jitter",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.854Z",
+      "type": "BANK_CREDIT_CHECKED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.832Z",
+      "type": "SimulationLog_CREATED",
+      "service": "bank",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "scenario": "HEALTHY",
+        "committed": false,
+        "latencyMs": 0,
+        "durationMs": 32,
+        "httpStatus": 200,
+        "configVersion": 69
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.668Z",
+      "type": "PURCHASE_SUBMITTED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "INSERT",
+      "metadata": {
+        "status": "INSERT",
+        "previousStatus": null
+      }
+    },
+    {
+      "timestamp": "2026-11-22T13:18:14.637Z",
+      "type": "Purchase_CREATED",
+      "service": "bnpl",
+      "correlationId": "aa2adc48-375b-4ddb-85ac-3cd3568011f2",
+      "status": "PENDING_REVIEW",
+      "metadata": {
+        "status": "PENDING_REVIEW",
+        "previousStatus": null
+      }
+    }
+  ],
+  "checks": {
+    "unit": 25,
+    "postgresHttp": 30,
+    "browser": 4,
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "schemaDrift": "NONE"
+  }
+}

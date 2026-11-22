@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import { telemetry } from '@/modules/observability/telemetry';
 import { db } from '@/lib/db';
 import { sign } from '@/modules/webhooks/signature';
 import { defaults } from '@/modules/banking/simulator';
@@ -47,7 +48,17 @@ async function call(
   return { response, result };
 }
 async function action(cookie: string, body: unknown) {
-  const result = await call('/api/actions', body, cookie);
+  const payload = body as Record<string, unknown>;
+  const result = await call(
+    '/api/actions',
+    {
+      ...payload,
+      ...(['RECONCILE', 'RETRY_JOB', 'REPLAY_WEBHOOK'].includes(String(payload.action))
+        ? { confirmed: true }
+        : {}),
+    },
+    cookie,
+  );
   expect(result.response.status, JSON.stringify(result.result)).toBe(200);
   return result.result.data;
 }
@@ -552,5 +563,335 @@ describe.sequential('real PostgreSQL and HTTP financial workflows', () => {
       expect(r.response.status).toBe(200);
     }
     expect((await call('/api/health')).result.status).toBe('ok');
+  });
+
+  it('traces first-installment response loss through durable worker recovery and delayed duplicate delivery', async () => {
+    await action(bankCookie, {
+      action: 'ADJUST_ACCOUNT',
+      id: randomUUID(),
+      accountId,
+      cash: '200000',
+      creditLimit: '1000000000',
+      status: 'ACTIVE',
+      reason: 'Independent acceptance credit capacity',
+    });
+    await healthy();
+    const productId = `acceptance-${testId}`;
+    await db().product.create({
+      data: {
+        id: productId,
+        name: 'Observability acceptance purchase',
+        category: 'Testing',
+        description: 'Persisted acceptance fixture',
+        price: 240000n,
+        stock: 2,
+        icon: 'laptop',
+      },
+    });
+    const purchase = await action(customerCookie, {
+      action: 'CHECKOUT',
+      key: randomUUID(),
+      count: 4,
+      items: [{ productId, quantity: 1 }],
+    });
+    await action(adminCookie, { action: 'CHECK_CREDIT', id: purchase.id });
+    await action(adminCookie, {
+      action: 'DECIDE',
+      id: purchase.id,
+      approve: true,
+      reason: 'Observability acceptance approval',
+    });
+    await runJob(`approve:${purchase.id}`);
+    const first = await db().installment.findUniqueOrThrow({
+      where: { purchaseId_number: { purchaseId: purchase.id, number: 1 } },
+    });
+    const p = await action(customerCookie, {
+      action: 'PAY',
+      installmentId: first.id,
+      key: randomUUID(),
+    });
+    await healthy('RESPONSE_LOST');
+    await runJob(`pay:${p.id}`);
+    expect((await db().payment.findUniqueOrThrow({ where: { id: p.id } })).status).toBe(
+      'PENDING_RECONCILIATION',
+    );
+    expect((await db('bank').bankOperation.findUniqueOrThrow({ where: { id: p.id } })).status).toBe(
+      'SUCCEEDED',
+    );
+    await healthy();
+    await db().job.update({ where: { id: `pay:${p.id}` }, data: { availableAt: new Date() } });
+    await runJob(`pay:${p.id}`);
+    expect((await db().payment.findUniqueOrThrow({ where: { id: p.id } })).status).toBe(
+      'SUCCEEDED',
+    );
+    expect((await db().job.findUniqueOrThrow({ where: { id: `pay:${p.id}` } })).attempts).toBe(2);
+    const e = await db('bank').bankEvent.findFirstOrThrow({ where: { operationId: p.id } });
+    await worker();
+    await runJob(`inbox:${e.id}`);
+    const body = e.payload as { eventId: string };
+    const timestamp = Date.now().toString(),
+      signature = sign(JSON.stringify(body), timestamp, process.env.WEBHOOK_SECRET!);
+    expect(
+      (
+        await call('/api/webhooks/bank', body, '', {
+          'x-bank-timestamp': timestamp,
+          'x-bank-signature': signature,
+        })
+      ).response.status,
+    ).toBe(200);
+    expect(await db().journal.count({ where: { id: `payment:${p.id}` } })).toBe(1);
+    const repeated = await action(customerCookie, {
+      action: 'PAY',
+      installmentId: first.id,
+      key: randomUUID(),
+    });
+    expect(repeated.id).toBe(p.id);
+    await action(adminCookie, { action: 'RECONCILE' });
+    const trace = await call(
+      `/api/operations?section=transactions&q=${purchase.id}&limit=100`,
+      undefined,
+      adminCookie,
+    );
+    expect(trace.response.status).toBe(200);
+    const types = trace.result.data.rows.map((r: { type: string }) => r.type);
+    for (const t of [
+      'PAYMENT_OUTCOME_UNKNOWN',
+      'PAYMENT_RECOVERED',
+      'LEDGER_POSTING_CREATED',
+      'DUPLICATE_WEBHOOK_DETECTED',
+      'IDEMPOTENT_PAYMENT_REUSED',
+    ])
+      expect(types).toContain(t);
+    expect((await db().installment.findUniqueOrThrow({ where: { id: first.id } })).status).toBe(
+      'PAID',
+    );
+    expect((await db().purchase.findUniqueOrThrow({ where: { id: purchase.id } })).status).toBe(
+      'ACTIVE',
+    );
+    // A separate pre-commit timeout is observable and never recorded as a bank commit.
+    const next = await db().installment.findUniqueOrThrow({
+      where: { purchaseId_number: { purchaseId: purchase.id, number: 2 } },
+    });
+    const timed = await action(customerCookie, {
+      action: 'PAY',
+      installmentId: next.id,
+      key: randomUUID(),
+    });
+    await healthy('TIMEOUT');
+    await runJob(`pay:${timed.id}`);
+    const log = await db('bank').simulationLog.findFirstOrThrow({
+      where: { operationId: timed.id, scenario: 'TIMEOUT' },
+    });
+    expect(log.httpStatus).toBe(504);
+    expect(await db('bank').bankOperation.count({ where: { id: timed.id } })).toBe(0);
+    await healthy();
+  });
+  it('protects all operations endpoints, exports and administrative pages', async () => {
+    for (const cookie of ['', customerCookie, bankCookie]) {
+      const r = await call('/api/operations?section=events', undefined, cookie);
+      expect([401, 403]).toContain(r.response.status);
+      const csv = await call('/api/operations?section=reports&format=csv', undefined, cookie);
+      expect([401, 403]).toContain(csv.response.status);
+    }
+    const page = await call('/admin/operations/events', undefined, customerCookie);
+    expect(page.response.status).toBe(307);
+  });
+  it('shows durable creation, approval, response loss, worker, duplicate, recovery and ledger events', async () => {
+    const r = await call(
+      `/api/operations?section=transactions&q=${purchaseId}&limit=100`,
+      undefined,
+      adminCookie,
+    );
+    expect(r.response.status, JSON.stringify(r.result)).toBe(200);
+    const events = [...r.result.data.rows];
+    for (let page = 2; events.length < r.result.data.total && page <= 20; page++) {
+      const next = await call(
+        `/api/operations?section=transactions&q=${purchaseId}&limit=100&page=${page}`,
+        undefined,
+        adminCookie,
+      );
+      events.push(...next.result.data.rows);
+    }
+    const types = events.map((e: { type: string }) => e.type);
+    for (const type of [
+      'PURCHASE_SUBMITTED',
+      'ADMIN_APPROVED',
+      'PAYMENT_OUTCOME_UNKNOWN',
+      'SimulationLog_CREATED',
+      'LEDGER_POSTING_CREATED',
+      'DUPLICATE_WEBHOOK_DETECTED',
+      'JobAttempt_CREATED',
+    ])
+      expect(types).toContain(type);
+    expect(
+      events.some(
+        (e: { metadata: { scenario?: string; committed?: boolean } }) =>
+          e.metadata.scenario === 'RESPONSE_LOST' && e.metadata.committed === true,
+      ),
+    ).toBe(true);
+    expect(
+      events.every(
+        (e: { createdAt: string; correlationId: string }) => e.createdAt && e.correlationId,
+      ),
+    ).toBe(true);
+    expect((await db().payment.findUniqueOrThrow({ where: { id: secondPaymentId } })).status).toBe(
+      'SUCCEEDED',
+    );
+    expect(await db().journal.count({ where: { id: `payment:${secondPaymentId}` } })).toBe(1);
+  });
+  it('reads every operations view from persisted sources', async () => {
+    for (const section of [
+      'overview',
+      'events',
+      'transactions',
+      'api-logs',
+      'webhooks',
+      'workers',
+      'database',
+      'reconciliation',
+      'errors',
+      'audit',
+      'reports',
+      'learning',
+    ]) {
+      const r = await call(`/api/operations?section=${section}`, undefined, adminCookie);
+      expect(r.response.status, `${section}: ${JSON.stringify(r.result)}`).toBe(200);
+      expect(r.result.data.updatedAt).toBeTruthy();
+    }
+  });
+  it('paginates without overlap and validates bounded filters', async () => {
+    const a = await call('/api/operations?section=events&limit=2&page=1', undefined, adminCookie);
+    const b = await call('/api/operations?section=events&limit=2&page=2', undefined, adminCookie);
+    expect(a.result.data.rows).toHaveLength(2);
+    expect(b.result.data.rows).toHaveLength(2);
+    expect(
+      a.result.data.rows
+        .map((r: { id: string }) => r.id)
+        .some((id: string) => b.result.data.rows.some((r: { id: string }) => r.id === id)),
+    ).toBe(false);
+    expect(
+      (await call('/api/operations?limit=10000', undefined, adminCookie)).response.status,
+    ).toBe(400);
+    const errors = await call(
+      '/api/operations?section=events&severity=ERROR',
+      undefined,
+      adminCookie,
+    );
+    expect(errors.result.data.rows.every((r: { severity: string }) => r.severity === 'ERROR')).toBe(
+      true,
+    );
+  });
+  it('rolls back state and its durable events atomically', async () => {
+    const id = `rollback-${testId}`;
+    await expect(
+      db().$transaction(async (tx) => {
+        await tx.audit.create({ data: { actor: 'test', action: 'ROLLBACK_PROBE', reference: id } });
+        throw new Error('Deliberate transaction abort');
+      }),
+    ).rejects.toThrow();
+    expect(await db().audit.count({ where: { reference: id } })).toBe(0);
+    const [r] = await db().$queryRaw<
+      { count: bigint }[]
+    >`SELECT count(*) FROM bnpl."OperationEvent" WHERE "operationId"=${id}`;
+    expect(Number(r.count)).toBe(0);
+  });
+  it('rejects event and audit mutation under normal runtime credentials', async () => {
+    const event = await db().bnpl_OperationEvent.findFirstOrThrow();
+    await expect(
+      db().bnpl_OperationEvent.update({ where: { id: event.id }, data: { type: 'TAMPER' } }),
+    ).rejects.toThrow();
+    await expect(db().bnpl_OperationEvent.delete({ where: { id: event.id } })).rejects.toThrow();
+    const audit = await db().audit.findFirstOrThrow();
+    await expect(
+      db().audit.update({ where: { id: audit.id }, data: { action: 'TAMPER' } }),
+    ).rejects.toThrow();
+  });
+  it('audits manual recovery and preserves webhook identity and financial uniqueness', async () => {
+    const event = await db('bank').bankEvent.findFirstOrThrow({
+      where: { operationId: secondPaymentId },
+    });
+    const r = await call(
+      '/api/operations',
+      {
+        action: 'REPLAY_WEBHOOK',
+        id: event.id,
+        note: 'Verify original identity replay',
+        confirmed: true,
+      },
+      adminCookie,
+    );
+    expect(r.response.status, JSON.stringify(r.result)).toBe(200);
+    await worker();
+    expect(await db().journal.count({ where: { id: `payment:${secondPaymentId}` } })).toBe(1);
+    expect(
+      await db('bank').bank_Audit.count({
+        where: { action: 'MANUAL_WEBHOOK_REPLAY', reference: secondPaymentId },
+      }),
+    ).toBeGreaterThan(0);
+  });
+  it('requires confirmation and CSRF protection for recovery controls', async () => {
+    expect(
+      (await call('/api/operations', { action: 'RECONCILE', note: 'test' }, adminCookie)).response
+        .status,
+    ).toBe(400);
+    const r = await call(
+      '/api/operations',
+      { action: 'RECONCILE', note: 'test', confirmed: true },
+      adminCookie,
+      { origin: 'https://wrong.example' },
+    );
+    expect(r.response.status).toBe(403);
+  });
+  it('records reconciliation and exports authorized summaries agreeing with records', async () => {
+    const r = await call(
+      '/api/operations',
+      { action: 'RECONCILE', note: 'Check recorded invariants', confirmed: true },
+      adminCookie,
+    );
+    expect(r.response.status).toBe(200);
+    const report = await call('/api/operations?section=reports', undefined, adminCookie);
+    expect(report.response.status, JSON.stringify(report.result)).toBe(200);
+    const from = new Date(Date.now() - 7 * 86400000);
+    expect(report.result.data.metrics.purchaseRequests).toBe(
+      await db().purchase.count({ where: { createdAt: { gte: from } } }),
+    );
+    const csv = await fetch(`${base}/api/operations?section=reports&format=csv`, {
+      headers: { cookie: adminCookie },
+    });
+    expect(csv.status).toBe(200);
+    expect(csv.headers.get('content-type')).toContain('text/csv');
+    expect(await csv.text()).toContain('purchaseRequests');
+    expect(await db().audit.count({ where: { action: 'OPERATIONS_EXPORTED' } })).toBeGreaterThan(0);
+  });
+  it('observes eligible retries without resetting attempt history or changing operation IDs', async () => {
+    const id = `test-observe-${testId}`;
+    await db().job.create({
+      data: { id, kind: 'INBOX', reference: randomUUID(), status: 'DEAD', attempts: 8 },
+    });
+    const r = await call(
+      '/api/operations',
+      { action: 'RETRY_JOB', id, note: 'Retry retained operation', confirmed: true },
+      adminCookie,
+    );
+    expect(r.response.status).toBe(200);
+    const j = await db().job.findUniqueOrThrow({ where: { id } });
+    expect(j.attempts).toBe(8);
+    await runJob(id);
+    const failed = await db().job.findUniqueOrThrow({ where: { id } });
+    expect(failed.status).toBe('DEAD');
+    expect(
+      await db().bnpl_OperationEvent.count({ where: { operationId: j.reference } }),
+    ).toBeGreaterThan(1);
+  });
+  it('keeps business writes usable when noncritical telemetry ingestion fails', async () => {
+    await telemetry(null as unknown as string, { httpStatus: 500 });
+    const id = `telemetry-failure-${testId}`;
+    await db().$transaction(async (tx) => {
+      await tx.audit.create({
+        data: { actor: 'test', action: 'EXPORTER_FAILURE_PROBE', reference: id },
+      });
+    });
+    expect(await db().audit.count({ where: { reference: id } })).toBe(1);
+    expect(await db().bnpl_OperationEvent.count({ where: { operationId: id } })).toBe(1);
   });
 });

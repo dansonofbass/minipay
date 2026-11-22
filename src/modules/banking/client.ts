@@ -1,4 +1,6 @@
+import { randomBytes } from 'node:crypto';
 import { appUrl, DomainError } from '@/lib/http';
+import { tracing } from '@/modules/observability/context';
 export async function bankCall(path: string, body?: unknown, correlationId?: string) {
   const response = await fetch(`${appUrl()}/api/bank/v1/${path}`, {
     method: body === undefined ? 'GET' : 'POST',
@@ -7,7 +9,8 @@ export async function bankCall(path: string, body?: unknown, correlationId?: str
     headers: {
       authorization: `Bearer ${process.env.BANK_SERVICE_SECRET}`,
       'content-type': 'application/json',
-      'x-correlation-id': correlationId ?? crypto.randomUUID(),
+      ...(tracing.getStore()?{traceparent:`00-${tracing.getStore()!.traceId}-${randomBytes(8).toString('hex')}-01`}:{}),
+      'x-correlation-id': correlationId ?? tracing.getStore()?.correlationId ?? crypto.randomUUID(),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });

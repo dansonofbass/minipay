@@ -308,6 +308,7 @@ export async function adjustAccount(raw: unknown, actor: string) {
       where: { id: account.id },
       data: { cash: input.cash, creditLimit: input.creditLimit, status: input.status },
     });
+    await tx.$executeRaw`INSERT INTO bank."Audit" (actor,action,reference,detail) VALUES (${actor},'BANK_ACCOUNT_ADJUSTED',${account.id},${JSON.stringify({ before: { cash: account.cash.toString(), creditLimit: account.creditLimit.toString(), status: account.status }, after: { cash: input.cash.toString(), creditLimit: input.creditLimit.toString(), status: input.status } })}::jsonb)`;
     return tx.bankOperation.create({
       data: {
         id: input.id,

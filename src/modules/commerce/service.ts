@@ -196,11 +196,27 @@ export async function initiatePayment(customerId: string, installmentId: string,
     const prior = await tx.idempotency.findUnique({ where: { id } });
     if (prior) {
       invariant(prior.hash === hash, 'IDEMPOTENCY_CONFLICT', 'Payment key conflict');
+      await tx.audit.create({
+        data: {
+          actor: customerId,
+          action: 'IDEMPOTENT_PAYMENT_REUSED',
+          reference: p.id,
+          detail: { paymentId: prior.reference },
+        },
+      });
       return tx.payment.findUniqueOrThrow({ where: { id: prior.reference } });
     }
     const latest = installment.payments[0];
     if (latest && latest.status !== 'DECLINED') {
       await tx.idempotency.create({ data: { id, hash, reference: latest.id } });
+      await tx.audit.create({
+        data: {
+          actor: customerId,
+          action: 'IDEMPOTENT_PAYMENT_REUSED',
+          reference: p.id,
+          detail: { paymentId: latest.id },
+        },
+      });
       return latest;
     }
     invariant(

@@ -62,7 +62,7 @@ export async function GET(request: Request, context: Context) {
     if (path[0] === 'credit' && path[1] === 'reservations' && path[2])
       return { reservation: await db('bank').reservation.findUnique({ where: { id: path[2] } }) };
     invariant(false, 'NOT_FOUND', 'Bank endpoint not found', 404);
-  });
+  }, request);
 }
 export async function POST(request: Request, context: Context) {
   return endpoint(async () => {
@@ -123,5 +123,5 @@ export async function POST(request: Request, context: Context) {
       );
     }
     invariant(false, 'NOT_FOUND', 'Bank endpoint not found', 404);
-  });
+  }, request);
 }

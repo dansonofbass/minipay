@@ -12,6 +12,9 @@ await client.query(`
   GRANT SELECT,INSERT,UPDATE ON ALL TABLES IN SCHEMA bank TO crediflow_bank;
   REVOKE UPDATE,DELETE ON bnpl."Journal",bnpl."Entry",bnpl."Audit" FROM crediflow_bnpl;
   REVOKE UPDATE,DELETE ON bank."BankJournal",bank."BankEntry",bank."BankOperation",bank."SimulationLog" FROM crediflow_bank;
+  REVOKE INSERT,UPDATE,DELETE ON bnpl."OperationEvent" FROM crediflow_bnpl;
+  REVOKE INSERT,UPDATE,DELETE ON bank."OperationEvent" FROM crediflow_bank;
+  REVOKE UPDATE,DELETE ON bank."Audit" FROM crediflow_bank;
 `);
 await client.end();
 console.log('Schema-specific runtime grants applied.');

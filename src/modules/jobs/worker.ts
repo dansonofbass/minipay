@@ -5,17 +5,18 @@ import { bankCall } from '@/modules/banking/client';
 import { completeApproval } from '@/modules/commerce/service';
 import { finalize } from '@/modules/payments/finalize';
 import { DomainError } from '@/lib/http';
+import { requestContext, tracing } from '@/modules/observability/context';
 
 export async function wake() {
   if (!process.env.VERCEL) return;
   try {
     await send('crediflow-jobs', { tick: Date.now() }, { idempotencyKey: `wake:${randomUUID()}` });
-  } catch (error) {
+  } catch {
     console.error(
       JSON.stringify({
         level: 'error',
         message: 'Queue publish failed; database jobs retained for scheduled recovery',
-        error: String(error),
+        code: 'QUEUE_PUBLISH_FAILED',
       }),
     );
   }
@@ -71,7 +72,7 @@ async function execute(kind: string, reference: string) {
           where: { id: p.id },
           data: {
             status: 'PENDING_RECONCILIATION',
-            lastError: error instanceof Error ? error.message : 'Bank transport failure',
+            lastError: error instanceof DomainError ? error.code : 'BANK_TRANSPORT_FAILURE',
           },
         });
         await tx.installment.update({
@@ -109,6 +110,14 @@ async function execute(kind: string, reference: string) {
   }
 }
 export async function runJob(id: string) {
+  const record = await db().job.findUnique({ where: { id } });
+  if (!record) return;
+  const context = requestContext();
+  context.correlationId = record.reference;
+  context.actorId = 'worker';
+  return tracing.run(context, () => runClaimedJob(id));
+}
+async function runClaimedJob(id: string) {
   const token = randomUUID(),
     now = new Date();
   const claimed = await db().job.updateMany({
@@ -162,7 +171,7 @@ export async function runJob(id: string) {
       db().jobAttempt.create({ data: { jobId: id, attempt: record.attempts, status: 'DONE' } }),
     ]);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Worker failed';
+    const message = error instanceof DomainError ? error.code : 'WORKER_EXECUTION_FAILED';
     await db().$transaction([
       db().job.updateMany({
         where: { id, leaseToken: token },
@@ -185,6 +194,21 @@ export async function runJob(id: string) {
   }
 }
 export async function tick() {
+  // Bounded cleanup of nonfinancial telemetry. Business/audit history is never purged here.
+  await Promise.all(
+    (['bnpl', 'bank'] as const).map(async (domain) => {
+      try {
+        if (domain === 'bnpl')
+          await db()
+            .$executeRaw`DELETE FROM bnpl."TechnicalLog" WHERE id IN (SELECT id FROM bnpl."TechnicalLog" WHERE "createdAt"<now()-interval '30 days' LIMIT 1000)`;
+        else
+          await db('bank')
+            .$executeRaw`DELETE FROM bank."TechnicalLog" WHERE id IN (SELECT id FROM bank."TechnicalLog" WHERE "createdAt"<now()-interval '30 days' LIMIT 1000)`;
+      } catch {
+        console.warn(JSON.stringify({ type: 'TELEMETRY_RETENTION_UNAVAILABLE', service: domain }));
+      }
+    }),
+  );
   const now = new Date(),
     dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())),
     dayEnd = new Date(dayStart.getTime() + 86400000);
@@ -214,9 +238,13 @@ export async function tick() {
   try {
     const outbox = await bankCall('outbox');
     if (outbox.nextAt) outboxNext = new Date(outbox.nextAt).getTime();
-  } catch (error) {
+  } catch {
     console.error(
-      JSON.stringify({ level: 'warn', message: 'Bank outbox unavailable', error: String(error) }),
+      JSON.stringify({
+        level: 'warn',
+        message: 'Bank outbox unavailable',
+        code: 'BANK_OUTBOX_UNAVAILABLE',
+      }),
     );
   }
   const pending = await db().job.findMany({

@@ -19,7 +19,8 @@
     "db:grants": "tsx scripts/grant-roles.ts",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
-    "db:seed:workflows": "tsx scripts/seed-workflows.ts"
+    "db:seed:workflows": "tsx scripts/seed-workflows.ts",
+    "db:release": "node scripts/release-migrations.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

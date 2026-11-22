@@ -51,5 +51,5 @@ export async function POST(request: Request) {
       await job(tx, `inbox:${payload.eventId}`, 'INBOX', payload.eventId);
     });
     return { accepted: true };
-  });
+  }, request);
 }

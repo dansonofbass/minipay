@@ -2,10 +2,13 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from './auth';
 import { invariant } from './http';
+import { tracing } from '@/modules/observability/context';
 export type Role = 'CUSTOMER' | 'BNPL_ADMIN' | 'BANK_ADMIN';
 export async function requireUser(role?: Role, requestHeaders?: Headers) {
   const session = await auth().api.getSession({ headers: requestHeaders ?? (await headers()) });
   invariant(session, 'UNAUTHENTICATED', 'Please sign in', 401);
+  const context = tracing.getStore();
+  if (context) context.actorId = session.user.id;
   invariant(
     !role || session.user.role === role,
     'FORBIDDEN',

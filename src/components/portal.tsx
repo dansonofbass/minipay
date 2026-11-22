@@ -216,6 +216,7 @@ const customerNav = [
   ['payments', 'Payment history', Activity],
 ] as const;
 const adminNav = [
+  ['operations', 'Operations center', Activity],
   ['', 'Overview', LayoutDashboard],
   ['requests', 'Purchase requests', Layers3],
   ['customers', 'Customers', Users],
@@ -288,13 +289,23 @@ export function Portal({ user, section }: { user: User; section: string[] }) {
     };
   }, [load]);
   const act: Action = async (body) => {
+    if (
+      ['RECONCILE', 'RETRY_JOB', 'REPLAY_WEBHOOK'].includes(String(body.action)) &&
+      !window.confirm('Confirm this audited recovery action using the original operation ID?')
+    )
+      return false;
     setBusy(true);
     setNotice('');
     try {
       const response = await fetch('/api/actions', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          ...body,
+          ...(['RECONCILE', 'RETRY_JOB', 'REPLAY_WEBHOOK'].includes(String(body.action))
+            ? { confirmed: true }
+            : {}),
+        }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message ?? 'Operation failed');
@@ -1513,6 +1524,9 @@ function Simulator({
   };
   return (
     <>
+      <Link className="button secondary" href="/bank/logs">
+        View Execution Details
+      </Link>
       <div className="simulator-intro">
         <span className="simulator-symbol">
           <Settings2 size={26} />

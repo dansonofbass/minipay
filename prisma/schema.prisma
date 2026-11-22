@@ -354,3 +354,120 @@ model SimulationLog {
   createdAt DateTime @default(now())
   @@schema("bank")
 }
+
+
+model bank_Audit {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  actor     String
+  action    String
+  reference String
+  detail    Json?
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+
+  @@index([reference, createdAt])
+  @@map("Audit")
+  @@schema("bank")
+}
+
+model bank_OperationEvent {
+  id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  createdAt     DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  type          String
+  severity      String
+  service       String
+  correlationId String
+  operationId   String
+  actorId       String?
+  customerId    String?
+  purchaseId    String?
+  paymentId     String?
+  requestId     String?
+  traceId       String?
+  status        String?
+  metadata      Json     @default("{}")
+
+  @@index([correlationId, createdAt, id])
+  @@index([createdAt, id])
+  @@index([operationId, createdAt])
+  @@index([type, createdAt])
+  @@index([severity, createdAt])
+  @@index([actorId, createdAt])
+  @@map("OperationEvent")
+  @@schema("bank")
+}
+
+model bank_TechnicalLog {
+  id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  createdAt     DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  type          String
+  severity      String
+  correlationId String
+  requestId     String?
+  traceId       String?
+  code          String?
+  metadata      Json     @default("{}")
+
+  @@index([code, createdAt])
+  @@index([correlationId, createdAt])
+  @@index([createdAt, id])
+  @@index([type, createdAt])
+  @@map("TechnicalLog")
+  @@schema("bank")
+}
+
+model ErrorReview {
+  id        String   @id
+  status    String
+  note      String
+  actor     String
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+
+  @@schema("bnpl")
+}
+
+model bnpl_OperationEvent {
+  id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  createdAt     DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  type          String
+  severity      String
+  service       String
+  correlationId String
+  operationId   String
+  actorId       String?
+  customerId    String?
+  purchaseId    String?
+  paymentId     String?
+  requestId     String?
+  traceId       String?
+  status        String?
+  metadata      Json     @default("{}")
+
+  @@index([actorId, createdAt])
+  @@index([correlationId, createdAt, id])
+  @@index([createdAt, id])
+  @@index([operationId, createdAt])
+  @@index([purchaseId, createdAt])
+  @@index([severity, createdAt])
+  @@index([type, createdAt])
+  @@map("OperationEvent")
+  @@schema("bnpl")
+}
+
+model bnpl_TechnicalLog {
+  id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  createdAt     DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  type          String
+  severity      String
+  correlationId String
+  requestId     String?
+  traceId       String?
+  code          String?
+  metadata      Json     @default("{}")
+
+  @@index([code, createdAt])
+  @@index([correlationId, createdAt])
+  @@index([createdAt, id])
+  @@index([type, createdAt])
+  @@map("TechnicalLog")
+  @@schema("bnpl")
+}

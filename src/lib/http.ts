@@ -1,5 +1,7 @@
 import { ZodError } from 'zod';
-import { randomUUID, timingSafeEqual } from 'node:crypto';
+import { timingSafeEqual } from 'node:crypto';
+import { requestContext, tracing } from '@/modules/observability/context';
+import { telemetry } from '@/modules/observability/telemetry';
 export class DomainError extends Error {
   constructor(
     public code: string,
@@ -18,46 +20,86 @@ export function serialize(value: unknown): string {
 export function json(value: unknown, status = 200) {
   return new Response(serialize(value), {
     status,
-    headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+    headers: {
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+      ...(tracing.getStore()
+        ? {
+            'x-correlation-id': tracing.getStore()!.correlationId,
+            'x-request-id': tracing.getStore()!.requestId,
+          }
+        : {}),
+    },
   });
 }
-export async function endpoint(fn: () => Promise<unknown>) {
-  const requestId = randomUUID();
-  try {
-    return json({ data: await fn(), requestId });
-  } catch (error) {
-    if (error instanceof DomainError)
-      return json({ error: { code: error.code, message: error.message }, requestId }, error.status);
-    if (error instanceof ZodError)
+export async function endpoint(fn: () => Promise<unknown>, request?: Request) {
+  const context = requestContext(request);
+  return tracing.run(context, async () => {
+    const { requestId } = context;
+    const started = Date.now();
+    let status = 200,
+      code: string | undefined;
+    try {
+      return json({ data: await fn(), requestId });
+    } catch (error) {
+      if (error instanceof DomainError) {
+        status = error.status;
+        code = error.code;
+        return json(
+          { error: { code: error.code, message: error.message }, requestId },
+          error.status,
+        );
+      }
+      if (error instanceof ZodError) {
+        status = 400;
+        code = 'VALIDATION';
+        return json(
+          {
+            error: {
+              code: 'VALIDATION',
+              message: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+            },
+            requestId,
+          },
+          400,
+        );
+      }
+      status = 500;
+      code = 'INTERNAL';
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          requestId,
+          code: 'INTERNAL',
+        }),
+      );
       return json(
         {
           error: {
-            code: 'VALIDATION',
-            message: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+            code: 'INTERNAL',
+            message:
+              'The operation could not be completed. Check the service configuration and retry.',
           },
           requestId,
         },
-        400,
+        500,
       );
-    console.error(
-      JSON.stringify({
-        level: 'error',
-        requestId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    );
-    return json(
-      {
-        error: {
-          code: 'INTERNAL',
-          message:
-            'The operation could not be completed. Check the service configuration and retry.',
-        },
-        requestId,
-      },
-      500,
-    );
-  }
+    } finally {
+      const route = request ? new URL(request.url).pathname : 'internal';
+      if (!route.startsWith('/api/operations') || status >= 400)
+        await telemetry(
+          'HTTP_REQUEST',
+          {
+            method: request?.method ?? 'INTERNAL',
+            route: route.replace(/[a-f0-9-]{36}/gi, ':id'),
+            httpStatus: status,
+            durationMs: Date.now() - started,
+            code,
+          },
+          route.startsWith('/api/bank/') ? 'bank' : 'bnpl',
+        );
+    }
+  });
 }
 export function equalSecret(a: string, b: string) {
   const aa = Buffer.from(a),

@@ -31,7 +31,17 @@ export async function finalize(id: string, result: BankResult) {
       'BANK_MISMATCH',
       'Bank confirmation does not match payment',
     );
-    if (p.status === 'SUCCEEDED' || p.bankVersion >= result.version) return p;
+    if (p.status === 'SUCCEEDED' || p.bankVersion >= result.version) {
+      await tx.audit.create({
+        data: {
+          actor: 'bank-confirmation',
+          action: 'DUPLICATE_FINANCIAL_EFFECT_PREVENTED',
+          reference: p.installment.purchaseId,
+          detail: { paymentId: id },
+        },
+      });
+      return p;
+    }
     invariant(
       ['SUCCEEDED', 'DECLINED'].includes(result.status),
       'BANK_PENDING',
@@ -111,6 +121,15 @@ export async function finalize(id: string, result: BankResult) {
         lastError: result.reason ?? null,
       },
     });
+    if (success && p.status === 'PENDING_RECONCILIATION')
+      await tx.audit.create({
+        data: {
+          actor: 'bank-confirmation',
+          action: 'PAYMENT_RECOVERED',
+          reference: purchase.id,
+          detail: { paymentId: id },
+        },
+      });
     await tx.audit.create({
       data: {
         actor: 'bank-confirmation',

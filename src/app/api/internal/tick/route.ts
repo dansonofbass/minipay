@@ -18,5 +18,5 @@ export async function GET(request: Request) {
     if (new URL(request.url).searchParams.get('reconcile') === 'true') await reconcile('scheduler');
     await wake();
     return result;
-  });
+  }, request);
 }

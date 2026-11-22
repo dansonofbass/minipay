@@ -84,22 +84,35 @@ export async function POST(request: Request) {
       }
       case 'RECONCILE':
         admin();
+        z.object({ confirmed: z.literal(true) }).parse(raw);
         result = await reconcile(user.id);
         break;
       case 'RETRY_JOB': {
         admin();
+        z.object({ confirmed: z.literal(true) }).parse(raw);
         const { id } = z.object({ id: z.string() }).parse(raw);
-        result = await db().job.updateMany({
-          where: { id, status: { in: ['DEAD', 'RETRY'] } },
-          data: {
-            status: 'READY',
-            attempts: 0,
-            availableAt: new Date(),
-            leaseToken: null,
-            leaseUntil: null,
-          },
+        result = await transaction('bnpl', async (tx) => {
+          const result = await tx.job.updateMany({
+            where: {
+              id,
+              status: { in: ['DEAD', 'RETRY'] },
+              OR: [{ leaseUntil: null }, { leaseUntil: { lt: new Date() } }],
+            },
+            data: {
+              status: 'READY',
+              availableAt: new Date(),
+              leaseToken: null,
+              leaseUntil: null,
+            },
+          });
+          invariant(
+            result.count === 1,
+            'INELIGIBLE_JOB',
+            'Only an eligible failed job can be retried',
+          );
+          await tx.audit.create({ data: { actor: user.id, action: 'JOB_RETRIED', reference: id } });
+          return result;
         });
-        await db().audit.create({ data: { actor: user.id, action: 'JOB_RETRIED', reference: id } });
         break;
       }
       case 'ADJUST_ACCOUNT':
@@ -111,11 +124,13 @@ export async function POST(request: Request) {
         const { config, nextScenario } = z
           .object({ config: simulatorSchema, nextScenario: z.enum(scenarios).nullable() })
           .parse(raw);
-        result = await db('bank').simulator.upsert({
-          where: { id: 'default' },
-          create: { config, nextScenario },
-          update: { config, nextScenario, version: { increment: 1 } },
-        });
+        result = await transaction('bank', (tx) =>
+          tx.simulator.upsert({
+            where: { id: 'default' },
+            create: { config, nextScenario },
+            update: { config, nextScenario, version: { increment: 1 } },
+          }),
+        );
         await db('bank').simulationLog.create({
           data: {
             operationId: 'configuration',
@@ -134,18 +149,25 @@ export async function POST(request: Request) {
       }
       case 'RESET_SIMULATOR':
         bank();
-        result = await db('bank').simulator.upsert({
-          where: { id: 'default' },
-          create: { config: defaults },
-          update: { config: defaults, nextScenario: null, version: { increment: 1 } },
-        });
+        result = await transaction('bank', (tx) =>
+          tx.simulator.upsert({
+            where: { id: 'default' },
+            create: { config: defaults },
+            update: { config: defaults, nextScenario: null, version: { increment: 1 } },
+          }),
+        );
         break;
       case 'REPLAY_WEBHOOK': {
         bank();
+        z.object({ confirmed: z.literal(true) }).parse(raw);
         const { id } = z.object({ id: z.string().uuid() }).parse(raw);
-        result = await db('bank').bankEvent.update({
-          where: { id },
-          data: { status: 'READY', attempts: 0, availableAt: new Date() },
+        result = await transaction('bank', async (tx) => {
+          const result = await tx.bankEvent.update({
+            where: { id },
+            data: { status: 'READY', availableAt: new Date() },
+          });
+          await tx.$executeRaw`INSERT INTO bank."Audit" (actor,action,reference) VALUES (${user.id},'MANUAL_WEBHOOK_REPLAY',${id})`;
+          return result;
         });
         break;
       }
@@ -160,5 +182,5 @@ export async function POST(request: Request) {
     }
     await wake();
     return result;
-  });
+  }, request);
 }

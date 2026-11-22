@@ -32,6 +32,7 @@ export async function deliverEvents() {
           signal: AbortSignal.timeout(10000),
           headers: {
             'content-type': 'application/json',
+            'x-correlation-id': event.operationId,
             'x-bank-timestamp': timestamp,
             'x-bank-signature': sign(body, timestamp, secret),
           },

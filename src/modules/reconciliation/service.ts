@@ -2,7 +2,8 @@ import { db, lock, transaction } from '@/lib/db';
 import { bankCall } from '@/modules/banking/client';
 import { completeApproval } from '@/modules/commerce/service';
 import { finalize } from '@/modules/payments/finalize';
-export async function reconcile(actor: string) {
+export async function reconcile(actor: string, note?: string) {
+  const verified: { reference: string; matched: boolean }[] = [];
   const findings: { reference: string; issue: string; resolved: boolean }[] = [];
   const pending = await db().payment.findMany({
     where: { status: { in: ['PENDING', 'PENDING_RECONCILIATION'] } },
@@ -103,6 +104,10 @@ export async function reconcile(actor: string) {
         const expected = purchase.installments
           .filter((i) => i.status !== 'PAID')
           .reduce((n, i) => n + i.amount, 0n);
+        verified.push({
+          reference: purchase.id,
+          matched: expected === BigInt(reservation.outstanding),
+        });
         if (expected !== BigInt(reservation.outstanding))
           findings.push({
             reference: purchase.id,
@@ -119,16 +124,27 @@ export async function reconcile(actor: string) {
   } catch {
     findings.push({ reference: 'bank', issue: 'INTEGRITY_INQUIRY_FAILED', resolved: false });
   }
-  const run = await db().reconciliation.create({
-    data: { status: findings.some((f) => !f.resolved) ? 'NEEDS_REVIEW' : 'MATCHED', findings },
+  return transaction('bnpl', async (tx) => {
+    const run = await tx.reconciliation.create({
+      data: { status: findings.some((f) => !f.resolved) ? 'NEEDS_REVIEW' : 'MATCHED', findings },
+    });
+    await tx.audit.create({
+      data: {
+        actor,
+        action: 'RECONCILIATION_RUN',
+        reference: run.id,
+        detail: { findings: findings.length, ...(note ? { note } : {}) },
+      },
+    });
+    for (const check of verified)
+      await tx.audit.create({
+        data: {
+          actor,
+          action: check.matched ? 'PRINCIPAL_RECONCILED' : 'PRINCIPAL_MISMATCH',
+          reference: check.reference,
+          detail: { runId: run.id, matched: check.matched },
+        },
+      });
+    return run;
   });
-  await db().audit.create({
-    data: {
-      actor,
-      action: 'RECONCILIATION_RUN',
-      reference: run.id,
-      detail: { findings: findings.length },
-    },
-  });
-  return run;
 }
